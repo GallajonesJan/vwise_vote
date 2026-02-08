@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel | V-Wise</title>
+  <link rel="stylesheet" href="admin.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <nav id="sidebar">
+    <ul>
+      <li>
+        <button id="toggle-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-240 200-480l240-240 56 56-183 184 183 184-56 56Zm264 0L464-480l240-240 56 56-183 184 183 184-56 56Z"/></svg>
+        </button>
+        <span class="logo">V-Wise Admin</span>
+      </li>
+      <li class="active">
+        <a href="#" class="href" data-section="schedule">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z"/></svg>
+          <span>Voting Schedule</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="href" data-section="candidates">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780Zm-455-80h311q-10-20-55.5-35T480-370q-55 0-100.5 15T325-320ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Zm0-80q17 0 28.5-11.5T520-600q0-17-11.5-28.5T480-640q-17 0-28.5 11.5T440-600q0 17 11.5 28.5T480-560Zm1 240Zm-1-280Z"/></svg>
+          <span>Add Candidates</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="href" data-section="voters">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M720-400v-120H600v-80h120v-120h80v120h120v80H800v120h-80Zm-360-80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm80-80h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T440-640q0-33-23.5-56.5T360-720q-33 0-56.5 23.5T280-640q0 33 23.5 56.5T360-560Zm0-80Zm0 400Z"/></svg>
+          <span>Add Voters</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="href" data-section="results">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-280h80v-200h-80v200Zm160 0h80v-400h-80v400Zm160 0h80v-120h-80v120ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/></svg>
+          <span>View Results</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="href" data-section="status">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m105-233-65-47 200-320 120 140 160-260 109 163q-23 1-43.5 5.5T545-539l-22-33-152 247-121-141-145 233ZM863-40 738-165q-20 14-44.5 21t-50.5 7q-75 0-127.5-52.5T463-317q0-75 52.5-127.5T643-497q75 0 127.5 52.5T823-317q0 26-7 50.5T795-221L920-97l-57 57ZM643-217q42 0 71-29t29-71q0-42-29-71t-71-29q-42 0-71 29t-29 71q0 42 29 71t71 29Zm89-320q-19-8-39.5-13t-42.5-6l205-324 65 47-188 296Z"/></svg>
+          <span>Voting Status</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="bottom-nav">
+      <ul>
+        <li>
+          <button id="light-mode-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M560-80q-82 0-155-31.5t-127.5-86Q223-252 191.5-325T160-480q0-83 31.5-155.5t86-127Q332-817 405-848.5T560-880q54 0 105 14t95 40q-91 53-145.5 143.5T560-480q0 112 54.5 202.5T760-134q-44 26-95 40T560-80Zm0-80h21q10 0 19-2-57-66-88.5-147.5T480-480q0-89 31.5-170.5T600-798q-9-2-19-2h-21q-133 0-226.5 93.5T240-480q0 133 93.5 226.5T560-160Zm-80-320Z"/></svg>
+            <span>Night Mode</span>
+            <div class="toggle-switch">
+              <div class="slider"></div>
+            </div>
+          </button>
+        </li>
+        <li>
+          <button id="logout-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/></svg>
+            <span>Logout</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    
+    <!-- Voting Schedule Section -->
+    <section id="scheduleSection" class="content-section active">
+      <h2>Voting Schedule</h2>
+      
+      <div class="card">
+        <h3>Current Election Status</h3>
+        <div class="status-badge" id="electionStatus">Loading...</div>
+        
+        <form id="scheduleForm" class="form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Election Start Date & Time</label>
+              <input type="datetime-local" id="startDate" required>
+            </div>
+            <div class="form-group">
+              <label>Election End Date & Time</label>
+              <input type="datetime-local" id="endDate" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Election Status</label>
+            <select id="status" required>
+              <option value="upcoming">Upcoming</option>
+              <option value="active">Active</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Save Schedule</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Add Candidates Section -->
+    <section id="candidatesSection" class="content-section">
+      <h2>Add Candidates</h2>
+      
+      <div class="card">
+        <h3>Upload Candidates via Excel</h3>
+        <p class="help-text">Excel file should contain: Partylist Name, Slogan, and all position candidates</p>
+        
+        <div class="upload-zone" onclick="document.getElementById('candidatesFile').click()">
+          <input type="file" id="candidatesFile" accept=".xlsx,.xls" style="display:none">
+          <div class="upload-icon">📄</div>
+          <p>Click to upload Excel file</p>
+          <span class="file-hint">.xlsx or .xls</span>
+        </div>
+
+        <button class="btn-secondary" onclick="downloadCandidateTemplate()">
+          📥 Download Template
+        </button>
+
+        <div id="candidatesPreview" class="preview-section" style="display:none">
+          <h4>Preview</h4>
+          <div id="candidatesPreviewContent"></div>
+          <button class="btn-primary" onclick="uploadCandidates()">Upload Candidates</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Add Voters Section -->
+    <section id="votersSection" class="content-section">
+      <h2>Add Voters</h2>
+      
+      <div class="card">
+        <h3>Upload Voters via Excel</h3>
+        <p class="help-text">Excel file should contain: First Name, Middle Name, Last Name, Student ID, Email, Department, Year Level</p>
+        
+        <div class="upload-zone" onclick="document.getElementById('votersFile').click()">
+          <input type="file" id="votersFile" accept=".xlsx,.xls" style="display:none">
+          <div class="upload-icon">📄</div>
+          <p>Click to upload Excel file</p>
+          <span class="file-hint">.xlsx or .xls</span>
+        </div>
+
+        <button class="btn-secondary" onclick="downloadVoterTemplate()">
+          📥 Download Template
+        </button>
+
+        <div id="votersPreview" class="preview-section" style="display:none">
+          <h4>Preview</h4>
+          <div id="votersPreviewContent"></div>
+          <button class="btn-primary" onclick="uploadVoters()">Upload Voters</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- View Results Section -->
+    <section id="resultsSection" class="content-section">
+      <h2>Election Results</h2>
+      
+      <div class="card">
+        <div class="results-header">
+          <h3>Current Standings</h3>
+          <button class="btn-secondary" onclick="loadResults()">🔄 Refresh</button>
+        </div>
+        
+        <div id="resultsContainer">
+          <p class="loading">Loading results...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Voting Status Section -->
+    <section id="statusSection" class="content-section">
+      <h2>Voting Status</h2>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Voters</div>
+          <div class="stat-value" id="totalVoters">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Votes Cast</div>
+          <div class="stat-value" id="votesCast">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Turnout</div>
+          <div class="stat-value" id="turnout">0%</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Votes by Position</h3>
+        <div id="positionBreakdown">
+          <p class="loading">Loading...</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="./sidebar.js"></script>
+  <script>
+    const API_URL = 'http://localhost:5000/api';
+    let candidatesData = [];
+    let votersData = [];
+
+    // Initialize
+    window.onload = function() {
+      const adminData = localStorage.getItem('admin');
+      if (!adminData) {
+        window.location.href = 'admin-login.html';
+        return;
+      }
+
+      loadSchedule();
+      loadResults();
+      loadVotingStatus();
+      setupNavigation();
+      setupFileHandlers();
+    };
+
+    // Navigation
+    function setupNavigation() {
+      document.querySelectorAll('.href').forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          const section = item.dataset.section;
+          
+          document.querySelectorAll('nav li').forEach(m => m.classList.remove('active'));
+          item.parentElement.classList.add('active');
+          
+          document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+          document.getElementById(section + 'Section').classList.add('active');
+        });
+      });
+    }
+
+    // Load Schedule
+    async function loadSchedule() {
+      try {
+        const response = await fetch(`${API_URL}/election/status`);
+        const data = await response.json();
+
+        document.getElementById('startDate').value = formatDateForInput(data.election_start_date);
+        document.getElementById('endDate').value = formatDateForInput(data.election_end_date);
+        document.getElementById('status').value = data.election_status || 'upcoming';
+
+        const statusBadge = document.getElementById('electionStatus');
+        statusBadge.textContent = data.election_status.toUpperCase();
+        statusBadge.className = 'status-badge ' + data.election_status;
+      } catch (error) {
+        console.error('Error loading schedule:', error);
+      }
+    }
+
+    // Save Schedule
+    document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const scheduleData = {
+        election_start_date: document.getElementById('startDate').value,
+        election_end_date: document.getElementById('endDate').value,
+        election_status: document.getElementById('status').value
+      };
+
+      try {
+        const response = await fetch(`${API_URL}/admin/election/settings`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(scheduleData)
+        });
+
+        if (response.ok) {
+          alert('✅ Schedule saved successfully!');
+          loadSchedule();
+        } else {
+          alert('❌ Failed to save schedule');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Connection error');
+      }
+    });
+
+    // File Handlers
+    function setupFileHandlers() {
+      document.getElementById('candidatesFile').addEventListener('change', handleCandidatesFile);
+      document.getElementById('votersFile').addEventListener('change', handleVotersFile);
+    }
+
+    function handleCandidatesFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        candidatesData = XLSX.utils.sheet_to_json(sheet);
+
+        displayCandidatesPreview(candidatesData);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function displayCandidatesPreview(data) {
+      const preview = document.getElementById('candidatesPreview');
+      const content = document.getElementById('candidatesPreviewContent');
+      
+      content.innerHTML = `
+        <p><strong>${data.length} partylist(s) found</strong></p>
+        <div class="preview-list">
+          ${data.map(p => `
+            <div class="preview-item">
+              <strong>${p['Name of Partylist']}</strong>
+              <p>"${p['Slogan']}"</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      
+      preview.style.display = 'block';
+    }
+
+    async function uploadCandidates() {
+      if (!candidatesData.length) return;
+
+      try {
+        const response = await fetch(`${API_URL}/admin/bulk-partylist`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ partylists: candidatesData })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert(`✅ Uploaded ${result.success_count} partylist(s)!`);
+          document.getElementById('candidatesPreview').style.display = 'none';
+          document.getElementById('candidatesFile').value = '';
+          candidatesData = [];
+        } else {
+          alert('❌ ' + (result.error || 'Upload failed'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Connection error');
+      }
+    }
+
+    function handleVotersFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        votersData = XLSX.utils.sheet_to_json(sheet);
+
+        displayVotersPreview(votersData);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function displayVotersPreview(data) {
+      const preview = document.getElementById('votersPreview');
+      const content = document.getElementById('votersPreviewContent');
+      
+      content.innerHTML = `
+        <p><strong>${data.length} voter(s) found</strong></p>
+        <table class="preview-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Student ID</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.slice(0, 5).map(v => `
+              <tr>
+                <td>${v['First Name']} ${v['Last Name']}</td>
+                <td>${v['Student ID']}</td>
+                <td>${v['Student Email']}</td>
+              </tr>
+            `).join('')}
+            ${data.length > 5 ? `<tr><td colspan="3">... and ${data.length - 5} more</td></tr>` : ''}
+          </tbody>
+        </table>
+      `;
+      
+      preview.style.display = 'block';
+    }
+
+    async function uploadVoters() {
+      if (!votersData.length) return;
+
+      const formatted = votersData.map(v => ({
+        student_id: v['Student ID'],
+        email: v['Student Email'],
+        password: v['Student ID'],
+        full_name: `${v['First Name']} ${v['Middle Name']} ${v['Last Name']}`,
+        department: v['Department'],
+        year_level: parseInt(v['Year Level'])
+      }));
+
+      try {
+        const response = await fetch(`${API_URL}/admin/bulk-register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ users: formatted })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert(`✅ Uploaded ${result.success_count} voter(s)!`);
+          document.getElementById('votersPreview').style.display = 'none';
+          document.getElementById('votersFile').value = '';
+          votersData = [];
+          loadVotingStatus();
+        } else {
+          alert('❌ ' + (result.error || 'Upload failed'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Connection error');
+      }
+    }
+
+    // Load Results
+    async function loadResults() {
+      try {
+        const response = await fetch(`${API_URL}/admin/results/detailed`, {
+          credentials: 'include'
+        });
+        const results = await response.json();
+
+        displayResults(results);
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('resultsContainer').innerHTML = '<p class="error">Failed to load results</p>';
+      }
+    }
+
+    function displayResults(results) {
+      const container = document.getElementById('resultsContainer');
+      
+      const grouped = results.reduce((acc, r) => {
+        if (!acc[r.position_name]) acc[r.position_name] = [];
+        acc[r.position_name].push(r);
+        return acc;
+      }, {});
+
+      container.innerHTML = Object.entries(grouped).map(([position, candidates]) => `
+        <div class="result-group">
+          <h4>${position}</h4>
+          <div class="result-items">
+            ${candidates.map((c, idx) => `
+              <div class="result-row ${idx === 0 ? 'winner' : ''}">
+                <div class="result-info">
+                  <span class="rank">${idx + 1}</span>
+                  <span class="name">${c.full_name}</span>
+                  <span class="dept">${c.department || 'N/A'}</span>
+                </div>
+                <div class="result-stats">
+                  <span class="votes">${c.vote_count || 0} votes</span>
+                  <span class="percent">${(c.vote_percentage || 0).toFixed(1)}%</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Load Voting Status
+    async function loadVotingStatus() {
+      try {
+        const [turnoutRes, resultsRes] = await Promise.all([
+          fetch(`${API_URL}/turnout`),
+          fetch(`${API_URL}/admin/results/detailed`, { credentials: 'include' })
+        ]);
+
+        const turnout = await turnoutRes.json();
+        const results = await resultsRes.json();
+
+        document.getElementById('totalVoters').textContent = turnout.total_students || 0;
+        document.getElementById('votesCast').textContent = turnout.voted_count || 0;
+        document.getElementById('turnout').textContent = (turnout.turnout_percentage || 0) + '%';
+
+        displayPositionBreakdown(results);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    function displayPositionBreakdown(results) {
+      const container = document.getElementById('positionBreakdown');
+      
+      const grouped = results.reduce((acc, r) => {
+        if (!acc[r.position_name]) acc[r.position_name] = 0;
+        acc[r.position_name] += r.vote_count || 0;
+        return acc;
+      }, {});
+
+      container.innerHTML = Object.entries(grouped).map(([position, count]) => `
+        <div class="breakdown-item">
+          <span class="breakdown-label">${position}</span>
+          <span class="breakdown-value">${count} votes</span>
+        </div>
+      `).join('');
+    }
+
+    // Download Templates
+    function downloadCandidateTemplate() {
+      const template = [{
+        'Name of Partylist': 'Unity Party',
+        'Slogan': 'Together We Rise',
+        'President': 'John Doe',
+        'Vice President Internal': 'Jane Smith',
+        'Vice President External': 'Bob Johnson',
+        'Secretary': 'Alice Williams',
+        'Assistant Secretary': 'Charlie Brown',
+        'Treasurer': 'Diana Prince',
+        'Auditor': 'Edward Norton',
+        'PIO 1': 'Fiona Green',
+        'PIO 2': 'George White',
+        'Department Representative': 'Hannah Black'
+      }];
+
+      const ws = XLSX.utils.json_to_sheet(template);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Candidates');
+      XLSX.writeFile(wb, 'candidates_template.xlsx');
+    }
+
+    function downloadVoterTemplate() {
+      const template = [{
+        'First Name': 'John',
+        'Middle Name': 'A.',
+        'Last Name': 'Doe',
+        'Student ID': '2024-001',
+        'Student Email': 'john.doe@school.edu',
+        'Department': 'Computer Science',
+        'Year Level': 3
+      }];
+
+      const ws = XLSX.utils.json_to_sheet(template);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Voters');
+      XLSX.writeFile(wb, 'voters_template.xlsx');
+    }
+
+    // Utilities
+    function formatDateForInput(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return date.toISOString().slice(0, 16);
+    }
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', function() {
+      if (confirm('Logout from admin panel?')) {
+        localStorage.removeItem('admin');
+        window.location.href = 'admin-login.html';
+      }
+    });
+  </script>
+</body>
+</html>

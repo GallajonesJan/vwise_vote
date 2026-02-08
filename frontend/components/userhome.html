@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./userhome.css">
+    <title>Homepage | V - Wise</title>
+</head>
+<body>
+    <nav id="sidebar">
+        <ul>
+            <li>
+                <button id="toggle-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-240 200-480l240-240 56 56-183 184 183 184-56 56Zm264 0L464-480l240-240 56 56-183 184 183 184-56 56Z"/></svg>
+                </button>
+                <span class="logo">V - Wise</span>
+            </li>
+            <li class="active">
+                <a href="userhome.html" class="href">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z"/></svg>
+                    <span>
+                        Home
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="votenow.html" class="href">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-80q-33 0-56.5-23.5T120-160v-182l110-125 57 57-80 90h546l-78-88 57-57 108 123v182q0 33-23.5 56.5T760-80H200Zm0-80h560v-80H200v80Zm225-225L284-526q-23-23-22.5-56.5T285-639l196-196q23-23 57-24t57 22l141 141q23 23 24 56t-22 56L538-384q-23 23-56.5 22.5T425-385Zm255-254L539-780 341-582l141 141 198-198ZM200-160v-80 80Z"/></svg>
+                    <span>Vote Now</span>
+                </a>
+            </li>
+            <li>
+                <a href="viewcandidates.html" class="href">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M80-160v-112q0-33 17-62t47-44q51-26 115-44t141-18q30 0 58.5 3t55.5 9l-70 70q-11-2-21.5-2H400q-71 0-127.5 17T180-306q-9 5-14.5 14t-5.5 20v32h250l80 80H80Zm542 16L484-282l56-56 82 82 202-202 56 56-258 258ZM400-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm10 240Zm-10-320q33 0 56.5-23.5T480-640q0-33-23.5-56.5T400-720q-33 0-56.5 23.5T320-640q0 33 23.5 56.5T400-560Zm0-80Z"/></svg>
+                    <span>
+                        View Candidates
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="viewparties.html" class="href">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-320q-33 0-56.5-23.5T160-400q0-33 23.5-56.5T240-480q33 0 56.5 23.5T320-400q0 33-23.5 56.5T240-320Zm480 0q-33 0-56.5-23.5T640-400q0-33 23.5-56.5T720-480q33 0 56.5 23.5T800-400q0 33-23.5 56.5T720-320Zm-240-40q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM284-120q14-69 68.5-114.5T480-280q73 0 127.5 45.5T676-120H284Zm-204 0q0-66 47-113t113-47q17 0 32 3t29 9q-30 29-50 66.5T224-120H80Zm656 0q-7-44-27-81.5T659-268q14-6 29-9t32-3q66 0 113 47t47 113H736ZM88-480l-48-64 440-336 160 122v-82h120v174l160 122-48 64-392-299L88-480Z"/></svg>
+                    <span>
+                        View Parties
+                    </span>
+                </a>
+            </li>
+            <li class="dropdown">
+                <button class="dropdown-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z"/></svg>
+                    <span>Application</span>
+                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Zm0 165L240-420l56-56 184 184 184-184 56 56-240 240Z"/></svg>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="candidacy.html" class="href">
+                            <span>Candidacy</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="partylist.html" class="href">
+                            <span>Partylist</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="profile.html" class="href">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Zm80-80h480v-32q0-11-5.5-20T700-306q-54-27-109-40.5T480-360q-56 0-111 13.5T260-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T560-640q0-33-23.5-56.5T480-720q-33 0-56.5 23.5T400-640q0 33 23.5 56.5T480-560Zm0-80Zm0 400Z"/></svg>
+                    <span>
+                        Profile
+                    </span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="bottom-nav">
+            <ul>
+                <li>
+                    <button id="light-mode-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M560-80q-82 0-155-31.5t-127.5-86Q223-252 191.5-325T160-480q0-83 31.5-155.5t86-127Q332-817 405-848.5T560-880q54 0 105 14t95 40q-91 53-145.5 143.5T560-480q0 112 54.5 202.5T760-134q-44 26-95 40T560-80Zm0-80h21q10 0 19-2-57-66-88.5-147.5T480-480q0-89 31.5-170.5T600-798q-9-2-19-2h-21q-133 0-226.5 93.5T240-480q0 133 93.5 226.5T560-160Zm-80-320Z"/></svg>
+                        <span>Night Mode</span>
+                        <div class="toggle-switch">
+                            <div class="slider"></div>
+                        </div>
+                    </button>
+                </li>
+                <li>
+                    <button id="logout-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/></svg>
+                        <span>Logout</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+<main>
+    <div class="container">
+      <h2>V - Wise</h2>
+      <p>V-Wise is a smart, secure online voting platform built for student council elections in schools and universities. It streamlines the entire election process by replacing paper ballots with a fast, transparent, and reliable digital system that's easy for administrators to manage and simple for students to use. With real-time results, secure voting, and a mobile-friendly experience, V-Wise makes student participation effortless while ensuring every vote counts—helping institutions run fair, modern, and trusted elections.</p>
+    </div>
+    <div class="container">
+      <h2>How V - Wise Works</h2>
+      <p>V-Wise simplifies student elections in three easy steps. Administrators create and manage elections, add candidates or parties, and set voting rules in minutes. Students log in securely, review candidates, and cast their votes from any device. Once voting ends, results are automatically calculated and displayed in real time—eliminating delays, errors, and manual counting.</p>
+    </div>
+    <div class="container">
+      <h2>Why choose V - Wise?</h2>
+      <p>V-Wise is designed specifically for academic institutions, combining security, transparency, and ease of use. Every vote is protected to ensure fairness, while real-time tracking and automated results remove guesswork from elections. The platform is mobile-friendly, accessible, and scalable—making it ideal for both small school councils and large university elections. With V-Wise, institutions empower students to participate confidently in a modern, reliable voting experience.</p>
+    </div>
+    <div class="vote-btn-wrapper">
+        <a href="votenow.html" class="vote-now-btn">Vote Now</a>
+    </div>
+  </main>
+<script src="./sidebar.js"></script>
+</body>
+</html>
