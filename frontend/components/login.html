@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./login.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
     <title>V-Wise</title>
 </head>
 <body>
@@ -11,12 +11,14 @@
         <div class="login-header">
             <header>V-Wise Login</header>
         </div>
-
+        {% if error %}
+    <p style="color: red; text-align: center; font-size: 14px;">{{ error }}</p>
+{% endif %}
         <form action="/login" method="POST">
             <div class="input-box">
                 <input type="text" 
                        class="input-field" 
-                       name="student_number"
+                       name="studentNumber"
                        placeholder="Student Number" 
                        required>
             </div>

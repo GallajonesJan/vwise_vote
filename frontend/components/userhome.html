@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./userhome.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='userhome.css') }}">
     <title>Homepage | V - Wise</title>
 </head>
 <body>
@@ -111,6 +111,6 @@
         <a href="votenow.html" class="vote-now-btn">Vote Now</a>
     </div>
   </main>
-<script src="./sidebar.js"></script>
+<script src="{{ url_for('static', filename='sidebar.js') }}"></script>
 </body>
 </html>
