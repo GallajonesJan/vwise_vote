@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory
 import mysql.connector
 
 # Get the absolute path of the 'backend' folder
@@ -40,22 +40,31 @@ def login():
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        
-        # Checking against 'accounts' table
         query = "SELECT * FROM accounts WHERE studentNumber = %s AND password = %s"
         cursor.execute(query, (student_no, pwd))
         user = cursor.fetchone()
-        
         cursor.close()
         conn.close()
 
         if user:
             session['user_id'] = user['id']
-            return redirect(url_for('userhome')) # This points to /userdashboard
+            # Using .upper() prevents login failure if DB has 'admin' instead of 'ADMIN'
+            if user['department'].upper() == 'ADMIN': 
+                session['role'] = 'ADMIN'  # optional, for easier checks
+                return redirect('/adminhome')  # or url_for('adminhome')
+
+            else:
+                return redirect(url_for('userhome'))
         else:
-            return render_template('login.html', error='Invalid Student Number or Password')
+            return render_template('login.html', error='Invalid Credentials')
             
     return render_template('login.html')
+
+@app.route('/adminhome', strict_slashes=False)
+def adminhome():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template('adminhome.html')
 
 @app.route('/userdashboard')
 def userhome():
@@ -100,6 +109,10 @@ def add_account():
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
+@app.route('/assets/svg/<path:filename>')
+def custom_static(filename):
+    return send_from_directory(os.path.join(frontend_path, '../assets/svg'), filename)
 
 if __name__ == '__main__':
     print("Running Flask app in folder:", os.getcwd())
