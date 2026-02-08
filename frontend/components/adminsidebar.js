@@ -88,8 +88,7 @@ logoutBtn.addEventListener('click', () => {
     localStorage.clear();
     
     // Redirect to login page
-    window.location.href = 'login.html';
-  }
+window.location.href = '/login';  }
 });
 
 // Load saved preferences on page load

@@ -4,9 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Panel | V-Wise</title>
-  <link rel="stylesheet" href="admin.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
   <!-- Sidebar Navigation -->
@@ -209,7 +208,7 @@
 
   </main>
 
-  <script src="./sidebar.js"></script>
+<script src="{{ url_for('static', filename='sidebar.js') }}"></script>
   <script>
     const API_URL = 'http://localhost:5000/api';
     let candidatesData = [];
@@ -219,7 +218,7 @@
     window.onload = function() {
       const adminData = localStorage.getItem('admin');
       if (!adminData) {
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
         return;
       }
 
@@ -580,7 +579,7 @@
     document.getElementById('logout-btn').addEventListener('click', function() {
       if (confirm('Logout from admin panel?')) {
         localStorage.removeItem('admin');
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
       }
     });
   </script>
