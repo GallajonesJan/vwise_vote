@@ -216,11 +216,6 @@
 
     // Initialize
     window.onload = function() {
-      const adminData = localStorage.getItem('admin');
-      if (!adminData) {
-        window.location.href = 'login.html';
-        return;
-      }
 
       loadSchedule();
       loadResults();

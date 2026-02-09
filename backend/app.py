@@ -1,24 +1,30 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory
 import mysql.connector
-
-# Get the absolute path of the 'backend' folder
-current_dir = os.path.dirname(os.path.abspath(__file__))
-# Go up one level to 'VWISE' then into 'frontend/components'
-frontend_path = os.path.abspath(os.path.join(current_dir, '..', 'frontend', 'components'))
-
-app = Flask(__name__, 
-            template_folder=frontend_path,
-            static_folder=frontend_path,
-            static_url_path='/static')
-
-# Force the browser to recognize CSS files correctly
 import mimetypes
+from functools import wraps
+from flask_cors import CORS
+
+# Force browser to recognize CSS correctly
 mimetypes.add_type('text/css', '.css')
 
-app.secret_key = 'supersecretkey'
+# Paths
+current_dir = os.path.dirname(os.path.abspath(__file__))
+frontend_path = os.path.abspath(os.path.join(current_dir, '..', 'frontend', 'components'))
+assets_svg_path = os.path.abspath(os.path.join(current_dir, '..', 'frontend', 'assets', 'svg'))
 
-# MySQL connection
+# Flask app
+app = Flask(
+    __name__,
+    template_folder=frontend_path,
+    static_folder=frontend_path,
+    static_url_path='/static'
+)
+app.secret_key = 'supersecretkey'
+CORS(app)
+# ----------------------------
+# Database connection
+# ----------------------------
 def get_db_connection():
     conn = mysql.connector.connect(
         host='localhost',
@@ -27,6 +33,28 @@ def get_db_connection():
         database='vwise_vote'
     )
     return conn
+
+# ----------------------------
+# Helper: login required decorator
+# ----------------------------
+
+def login_required(role=None):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if 'user_id' not in session:
+                return redirect(url_for('login'))
+
+            if role and session.get('role') != role.upper():
+                return redirect(url_for('login'))
+
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+# ----------------------------
+# Routes
+# ----------------------------
 
 @app.route('/')
 def index():
@@ -37,6 +65,7 @@ def login():
     if request.method == 'POST':
         student_no = request.form.get('studentNumber')
         pwd = request.form.get('password')
+        print("Login attempt:", student_no, pwd)
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
@@ -46,37 +75,40 @@ def login():
         cursor.close()
         conn.close()
 
+        print("User fetched:", user)
+
         if user:
             session['user_id'] = user['id']
-            # Using .upper() prevents login failure if DB has 'admin' instead of 'ADMIN'
-            if user['department'].upper() == 'ADMIN': 
-                session['role'] = 'ADMIN'  # optional, for easier checks
-                return redirect('/adminhome')  # or url_for('adminhome')
+            # Strip spaces and uppercase
+            session['role'] = user['department'].strip().upper()
+            print("Session role after login:", session['role'])
 
+            if session['role'] == 'ADMIN':
+                return redirect(url_for('adminhome'))
             else:
                 return redirect(url_for('userhome'))
+
         else:
+            print("Login failed")
             return render_template('login.html', error='Invalid Credentials')
-            
+
     return render_template('login.html')
 
-@app.route('/adminhome', strict_slashes=False)
+@app.route('/adminhome')
+@login_required(role='ADMIN')
 def adminhome():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
     return render_template('adminhome.html')
 
 @app.route('/userdashboard')
+@login_required()
 def userhome():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
     return render_template('userhome.html')
 
 @app.route('/add_account', methods=['POST'])
+@login_required(role='ADMIN')
 def add_account():
     data = request.json
-    
-    # Extracting all fields based on your new table structure
+
     firstname = data.get('firstname')
     middlename = data.get('middlename')
     lastname = data.get('lastname')
@@ -110,11 +142,28 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+# Serve SVGs
 @app.route('/assets/svg/<path:filename>')
 def custom_static(filename):
-    return send_from_directory(os.path.join(frontend_path, '../assets/svg'), filename)
+    return send_from_directory(assets_svg_path, filename)
 
+# Redirect old .html URLs to clean routes
+@app.route('/login.html')
+def login_html_redirect():
+    return redirect(url_for('login'))
+
+@app.route('/adminhome.html')
+def adminhome_html_redirect():
+    return redirect(url_for('adminhome'))
+
+@app.route('/userhome.html')
+def userhome_html_redirect():
+    return redirect(url_for('userhome'))
+
+# ----------------------------
+# Run Flask
+# ----------------------------
 if __name__ == '__main__':
     print("Running Flask app in folder:", os.getcwd())
-    print("Templates folder:", os.path.abspath('../frontend/components'))
+    print("Templates folder:", frontend_path)
     app.run(debug=True)
