@@ -1,6 +1,6 @@
 //TODO: Voting System
 ✔ admin approval page @done(26-02-10 15:46)
-☐ user voting page
+✔ user voting page @done(26-02-10 16:06)
 ☐ database schema for candidates and partylist
 ☐ backend logic for handling votes and approvals
 ☐ profile page
@@ -15,4 +15,4 @@
 ☐ backend routing
 ☐ backend controllers
 ✔ login admin and user @done(26-02-10 14:37)
-✔ database connection @done(26-02-10 14:37)
+✔ database connection @done(26-02-10 16:06)
