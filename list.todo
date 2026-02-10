@@ -1,0 +1,18 @@
+//TODO: Voting System
+✔ admin approval page @done(26-02-10 15:46)
+☐ user voting page
+☐ database schema for candidates and partylist
+☐ backend logic for handling votes and approvals
+☐ profile page
+☐ landing page
+☐ notifications for users about voting status
+☐ security measures to prevent fraudulent voting
+☐ testing and debugging of the voting system
+☐ view candidates page
+☐ view results page
+☐ view partylist page
+☐ vote receipt
+☐ backend routing
+☐ backend controllers
+✔ login admin and user @done(26-02-10 14:37)
+✔ database connection @done(26-02-10 14:37)

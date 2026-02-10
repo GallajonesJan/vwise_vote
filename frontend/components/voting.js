@@ -1,81 +1,211 @@
-// Store votes for each position
-const votes = {
-    president: null,
-    'vice-president': null,
-    secretary: null,
-    treasurer: null
-};
+// Stores votes dynamically by position name
+const votes = {};
 
-// Get all vote buttons
-const voteButtons = document.querySelectorAll('.vote-btn');
 const submitButton = document.getElementById('submit-vote-btn');
+const positionsWrapper = document.getElementById('positions-wrapper');
 
-// Handle vote button clicks
-voteButtons.forEach(button => {
-    button.addEventListener('click', function() {
-        const position = this.getAttribute('data-position');
-        const candidate = this.getAttribute('data-candidate');
+console.log('=== VOTING PAGE DEBUG ===');
+console.log('Submit button:', submitButton);
+console.log('Positions wrapper:', positionsWrapper);
+
+// Fetch candidates and render them
+async function loadCandidates() {
+    console.log('🔄 Loading candidates...');
+    
+    try {
+        const response = await fetch('/get-candidates');
+        console.log('📡 Response status:', response.status);
         
-        // Remove selected class from all cards in this position
-        const positionCards = document.querySelectorAll(`[data-position="${position}"]`)
-            .forEach(btn => {
-                btn.closest('.candidate-card').classList.remove('selected');
-            });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         
-        // Add selected class to clicked card
-        this.closest('.candidate-card').classList.add('selected');
-        
-        // Store the vote
-        votes[position] = {
-            candidate: candidate,
-            name: this.closest('.candidate-card').querySelector('.candidate-name').textContent,
-            party: this.closest('.candidate-card').querySelector('.candidate-party').textContent
-        };
-        
-        // Check if all positions have votes
+        const candidatesByPosition = await response.json();
+        console.log('📦 Candidates data:', candidatesByPosition);
+        console.log('📊 Number of positions:', Object.keys(candidatesByPosition).length);
+
+        // Clear existing content
+        positionsWrapper.innerHTML = '';
+
+        if (Object.keys(candidatesByPosition).length === 0) {
+            positionsWrapper.innerHTML = '<p class="error">No approved candidates found. Please check with your administrator.</p>';
+            console.warn('⚠️ No candidates found!');
+            return;
+        }
+
+        // Render each position
+        for (const [position, candidates] of Object.entries(candidatesByPosition)) {
+            console.log(`📝 Rendering position: ${position} with ${candidates.length} candidates`);
+            const positionContainer = createPositionSection(position, candidates);
+            positionsWrapper.appendChild(positionContainer);
+        }
+
         checkAllVotesCast();
-    });
-});
-
-// Check if all positions have been voted for
-function checkAllVotesCast() {
-    const allVoted = Object.values(votes).every(vote => vote !== null);
-    submitButton.disabled = !allVoted;
+        console.log('✅ Candidates loaded successfully!');
+        
+    } catch (error) {
+        console.error('❌ Error loading candidates:', error);
+        positionsWrapper.innerHTML = '<p class="error">Failed to load candidates. Please refresh the page.</p>';
+    }
 }
 
-// Handle submit vote
-submitButton.addEventListener('click', function() {
-    // Check if all votes are cast
-    if (Object.values(votes).every(vote => vote !== null)) {
-        // Create confirmation message
-        let confirmMessage = 'Please confirm your votes:\n\n';
-        confirmMessage += `President: ${votes.president.name} (${votes.president.party})\n`;
-        confirmMessage += `Vice President: ${votes['vice-president'].name} (${votes['vice-president'].party})\n`;
-        confirmMessage += `Secretary: ${votes.secretary.name} (${votes.secretary.party})\n`;
-        confirmMessage += `Treasurer: ${votes.treasurer.name} (${votes.treasurer.party})\n`;
-        confirmMessage += '\nAre you sure you want to submit? This action cannot be undone.';
+// Create a position section with candidate cards
+function createPositionSection(position, candidates) {
+    const container = document.createElement('div');
+    container.className = 'position-container';
+
+    const header = document.createElement('div');
+    header.className = 'position-header';
+    header.innerHTML = `
+        <h2>${position}</h2>
+        <p class="vote-instruction">Select one candidate (${candidates.length} candidate${candidates.length !== 1 ? 's' : ''})</p>
+    `;
+
+    const grid = document.createElement('div');
+    grid.className = 'candidates-grid';
+
+    candidates.forEach(candidate => {
+        const card = createCandidateCard(candidate, position);
+        grid.appendChild(card);
+    });
+
+    container.appendChild(header);
+    container.appendChild(grid);
+
+    return container;
+}
+
+// Create individual candidate card
+function createCandidateCard(candidate, position) {
+    const card = document.createElement('div');
+    card.className = 'candidate-card';
+
+    const radioId = `candidate-${candidate.id}`;
+
+    card.innerHTML = `
+        <div class="candidate-info">
+            <h3 class="candidate-name">${candidate.full_name}</h3>
+            <p class="candidate-party">${candidate.party}</p>
+        </div>
+        <button class="vote-btn" type="button">
+            <input type="radio" 
+                   name="${position}" 
+                   value="${candidate.id}" 
+                   id="${radioId}">
+            <label for="${radioId}">Vote</label>
+        </button>
+    `;
+
+    return card;
+}
+
+// Delegate clicks (works for dynamically created elements)
+document.addEventListener('click', function (e) {
+    if (e.target.closest('.vote-btn')) {
+        const voteBtn = e.target.closest('.vote-btn');
+        const card = voteBtn.closest('.candidate-card');
+        const radio = voteBtn.querySelector('input[type="radio"]');
         
-        if (confirm(confirmMessage)) {
-            // Here you would send the votes to your backend
-            console.log('Votes submitted:', votes);
-            
-            // Show success message
-            alert('Your vote has been successfully submitted! Thank you for participating.');
-            
-            // Disable all vote buttons
-            voteButtons.forEach(btn => btn.disabled = true);
-            submitButton.disabled = true;
-            submitButton.textContent = 'Vote Submitted';
-            
-            // Optional: Redirect to home page after a delay
-            setTimeout(() => {
-                window.location.href = 'userhome.html';
-            }, 2000);
-        }
-    } else {
-        alert('Please vote for all positions before submitting.');
+        if (!radio) return;
+
+        const position = radio.name;
+        const candidateId = radio.value;
+
+        console.log(`🗳️ Vote selected: ${position} - Candidate ID: ${candidateId}`);
+
+        // Remove "selected" class from all cards in this position
+        document
+            .querySelectorAll(`input[name="${position}"]`)
+            .forEach(input => {
+                input.closest('.candidate-card').classList.remove('selected');
+            });
+
+        // Mark selected card
+        card.classList.add('selected');
+        radio.checked = true;
+
+        // Store vote
+        votes[position] = {
+            candidate_id: candidateId,
+            name: card.querySelector('.candidate-name').textContent,
+            party: card.querySelector('.candidate-party').textContent
+        };
+
+        console.log('Current votes:', votes);
+        checkAllVotesCast();
     }
 });
 
-// Initialize: Disable submit button on load
+// Enable submit only if every position has a vote
+function checkAllVotesCast() {
+    const totalPositions = document.querySelectorAll('.position-container').length;
+    const votedPositions = Object.keys(votes).length;
+
+    console.log(`📊 Voted: ${votedPositions}/${totalPositions} positions`);
+    submitButton.disabled = votedPositions !== totalPositions;
+}
+
+// Submit votes to Flask backend
+submitButton.addEventListener('click', function () {
+    const totalPositions = document.querySelectorAll('.position-container').length;
+
+    if (Object.keys(votes).length !== totalPositions) {
+        alert('Please vote for all positions before submitting.');
+        return;
+    }
+
+    // Build confirmation message
+    let confirmMessage = 'Please confirm your votes:\n\n';
+
+    Object.entries(votes).forEach(([position, vote]) => {
+        confirmMessage += `${position}: ${vote.name} (${vote.party})\n`;
+    });
+
+    confirmMessage += '\nAre you sure you want to submit? This action cannot be undone.';
+
+    if (!confirm(confirmMessage)) return;
+
+    console.log('🚀 Submitting votes:', votes);
+
+    // Send votes to Flask
+    fetch('/submit-vote', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(votes)
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log('📬 Server response:', data);
+        
+        if (data.success) {
+            alert('Your vote has been successfully submitted!');
+
+            // Disable all inputs
+            document
+                .querySelectorAll('input[type="radio"]')
+                .forEach(input => input.disabled = true);
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Vote Submitted';
+
+            setTimeout(() => {
+                window.location.href = '/userdashboard';
+            }, 2000);
+        } else {
+            alert(data.error || data.message || 'Failed to submit vote.');
+        }
+    })
+    .catch(err => {
+        console.error('❌ Submit error:', err);
+        alert('An error occurred while submitting your vote.');
+    });
+});
+
+// Initial state
 submitButton.disabled = true;
+
+// Load candidates when page loads
+console.log('🚀 Starting candidate load...');
+loadCandidates();

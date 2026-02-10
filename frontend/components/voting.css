@@ -1,170 +1,217 @@
-/* Voting Page Styles */
-.voting-header{
-  text-align: center;
-  margin-bottom: 3em;
+/* Voting Page Styles - OVERRIDE EVERYTHING */
+
+/* Remove default main padding for voting page */
+body main {
+    padding: 2rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
 }
 
-.voting-header h1{
-  font-size: 2.5em;
-  color: var(--text-clr);
-  margin-bottom: 0.5em;
-}
-
-.voting-header p{
-  color: var(--secondary-text-clr);
-  font-size: 1.1em;
-}
-
-.position-container{
-  margin-bottom: 3em;
-}
-
-.position-title{
-  font-size: 1.8em;
-  color: var(--text-clr);
-  margin-bottom: 1.5em;
-  padding-bottom: 0.5em;
-  border-bottom: 2px solid var(--accent-clr);
-}
-
-.candidates-grid{
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5em;
-}
-
-.candidate-card{
-  background-color: var(--hover-clr);
-  border-color: 1px solid var(--line-clr);
-  border-radius: 1em;
-  padding: 1.5em;
-  transition: all 300ms ease;
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-}
-
-.candidate-card:hover{
-  transform: translateY(-5px);
-  box-shadow: 0 5px 20px rgba(94, 99, 255, 0.2);
-}
-
-.candidate-card.selected{
-  border: 2px solid var(--accent-clr);
-  background-color: rgba(94, 99, 255, 0.1);
-}
-
-.candidate-info{
-  display: flex;
-  align-items: center;
-  gap: 1em;
-}
-
-.candidate-avatar{
-  width: 60px;
-  height: 60px;
-  background-color: var(--accent-clr);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  flex-shrink: 0;
-}
-
-.candidate-details{
-  flex-grow: 1;
-}
-
-.candidate-name{
-  font-size: 1.2em;
-  color: var(--text-clr);
-  margin-bottom: 0.25em;
-}
-
-.candidate-party{
-  color: var(--secondary-text-clr);
-  font-size: 0.9em;
-}
-
-.vote-btn{
-  padding: 0.75em 1.5em;
-  background-color: transparent;
-  color: var(--accent-clr);
-  border: 2px solid var(--accent-clr);
-  border-radius: 0.5em;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 200ms ease;
-  font-size: 1em;
-}
-
-.vote-btn:hover{
-  background-color: var(--accent-clr);
-  color: #fff;
-  transform: scale(1.05);
-}
-
-.candidate-card.selected .vote-btn{
-  background-color: var(--accent-clr);
-  color: #fff;
-}
-
-.submit-container{
-  text-align: center;
-  margin-top: 3em;
-  padding: 2em;
-}
-
-.submit-vote-btn{
-  padding: 1em 3em;
-  background-color: var(--accent-clr);
-  color: #fff;
-  border: none;
-  border-radius: 0.5em;
-  font-size: 1.2em;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 200ms ease;
-  box-shadow: 0 4px 15px rgba(94, 99, 255, 0.4);
-}
-
-.submit-vote-btn:hover{
-  background-color: #4a4fff;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(94, 99, 255, 0.5);
-}
-
-.submit-vote-btn:active{
-  transform: translateY(0);
-}
-
-.submit-vote-btn:disabled{
-  background-color: var(--line-clr);
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.vote-disclaimer{
-  margin-top: 1em;
-  color: var(--secondary-text-clr);
-  font-size: 0.9em;
-}
-
-@media(max-width: 800px){
-  .voting-header h1{
-    font-size: 1.8em;
-  }
-
-  .position-title{
-    font-size: 1.4em;
-  }
-
-  .candidates-grid{
-    grid-template-columns: 1fr;
-  }
-
-  .submit-vote-btn{
+.voting-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
     width: 100%;
-  }
+    max-width: 1200px;
+}
+
+.voting-header h1 {
+    font-size: 2.5rem;
+    color: var(--text-clr);
+    margin-bottom: 0.5rem;
+}
+
+.voting-header p {
+    color: var(--secondary-text-clr);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+#positions-wrapper {
+    width: 100%;
+    max-width: 1200px;
+}
+
+.position-container {
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: var(--hover-clr);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.position-header {
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--accent-clr);
+    padding-bottom: 1rem;
+}
+
+.position-header h2 {
+    font-size: 1.8rem;
+    color: var(--text-clr);
+    margin: 0 0 0.5rem 0;
+}
+
+.vote-instruction {
+    color: var(--secondary-text-clr);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.candidates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.candidate-card {
+    border: 2px solid var(--line-clr);
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background: var(--base-clr);
+}
+
+.candidate-card:hover {
+    border-color: var(--accent-clr);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(94, 99, 255, 0.3);
+}
+
+.candidate-card.selected {
+    border-color: #27ae60;
+    background: rgba(39, 174, 96, 0.1);
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+.candidate-info {
+    margin-bottom: 1rem;
+}
+
+.candidate-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-clr);
+    margin-bottom: 0.5rem;
+}
+
+.candidate-party {
+    color: var(--secondary-text-clr);
+    font-size: 0.9rem;
+}
+
+.vote-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--accent-clr);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.vote-btn:hover {
+    background: #4a4fff;
+    transform: scale(1.02);
+}
+
+.candidate-card.selected .vote-btn {
+    background: #27ae60;
+}
+
+.vote-btn input[type="radio"] {
+    display: none;
+}
+
+.submit-container {
+    text-align: center;
+    margin: 3rem 0;
+    padding: 2rem 0;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.submit-vote-btn {
+    padding: 1rem 3rem;
+    background-color: var(--accent-clr);
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 200ms ease;
+    box-shadow: 0 4px 15px rgba(94, 99, 255, 0.4);
+    min-width: 200px;
+}
+
+.submit-vote-btn:hover:not(:disabled) {
+    background-color: #4a4fff;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(94, 99, 255, 0.5);
+}
+
+.submit-vote-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.submit-vote-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.6;
+}
+
+.vote-disclaimer {
+    margin-top: 1rem;
+    color: var(--secondary-text-clr);
+    font-size: 0.9rem;
+}
+
+.error {
+    text-align: center;
+    color: #e74c3c;
+    font-size: 1.2rem;
+    padding: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 800px) {
+    .voting-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .position-header h2 {
+        font-size: 1.4rem;
+    }
+
+    .candidates-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .submit-vote-btn {
+        width: 100%;
+        padding: 1rem 1.5rem;
+    }
+
+    .position-container {
+        padding: 1.5rem;
+    }
+
+    #positions-wrapper,
+    .voting-header,
+    .submit-container {
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
 }

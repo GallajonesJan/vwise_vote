@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="./userhome.css">
-    <link rel="stylesheet" href="./voting.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='userhome.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='voting.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vote Now | V - Wise</title>
 </head>
@@ -17,33 +17,27 @@
                 <span class="logo">V - Wise</span>
             </li>
             <li>
-                <a href="userhome.html" class="href">
+                <a href="/userdashboard" class="href">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z"/></svg>
-                    <span>
-                        Home
-                    </span>
+                    <span>Home</span>
                 </a>
             </li>
             <li class="active">
-                <a href="votenow.html" class="href">
+                <a href="/votenow" class="href">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-80q-33 0-56.5-23.5T120-160v-182l110-125 57 57-80 90h546l-78-88 57-57 108 123v182q0 33-23.5 56.5T760-80H200Zm0-80h560v-80H200v80Zm225-225L284-526q-23-23-22.5-56.5T285-639l196-196q23-23 57-24t57 22l141 141q23 23 24 56t-22 56L538-384q-23 23-56.5 22.5T425-385Zm255-254L539-780 341-582l141 141 198-198ZM200-160v-80 80Z"/></svg>
                     <span>Vote Now</span>
                 </a>
             </li>
             <li>
-                <a href="viewcandidates.html" class="href">
+                <a href="/viewcandidates" class="href">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M80-160v-112q0-33 17-62t47-44q51-26 115-44t141-18q30 0 58.5 3t55.5 9l-70 70q-11-2-21.5-2H400q-71 0-127.5 17T180-306q-9 5-14.5 14t-5.5 20v32h250l80 80H80Zm542 16L484-282l56-56 82 82 202-202 56 56-258 258ZM400-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm10 240Zm-10-320q33 0 56.5-23.5T480-640q0-33-23.5-56.5T400-720q-33 0-56.5 23.5T320-640q0 33 23.5 56.5T400-560Zm0-80Z"/></svg>
-                    <span>
-                        View Candidates
-                    </span>
+                    <span>View Candidates</span>
                 </a>
             </li>
             <li>
-                <a href="viewparties.html" class="href">
+                <a href="/viewparties" class="href">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-320q-33 0-56.5-23.5T160-400q0-33 23.5-56.5T240-480q33 0 56.5 23.5T320-400q0 33-23.5 56.5T240-320Zm480 0q-33 0-56.5-23.5T640-400q0-33 23.5-56.5T720-480q33 0 56.5 23.5T800-400q0 33-23.5 56.5T720-320Zm-240-40q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM284-120q14-69 68.5-114.5T480-280q73 0 127.5 45.5T676-120H284Zm-204 0q0-66 47-113t113-47q17 0 32 3t29 9q-30 29-50 66.5T224-120H80Zm656 0q-7-44-27-81.5T659-268q14-6 29-9t32-3q66 0 113 47t47 113H736ZM88-480l-48-64 440-336 160 122v-82h120v174l160 122-48 64-392-299L88-480Z"/></svg>
-                    <span>
-                        View Parties
-                    </span>
+                    <span>View Parties</span>
                 </a>
             </li>
             <li class="dropdown">
@@ -54,23 +48,21 @@
                 </button>
                 <ul class="dropdown-menu">
                     <li>
-                        <a href="candidacy.html" class="href">
+                        <a href="/candidacy" class="href">
                             <span>Candidacy</span>
                         </a>
                     </li>
                     <li>
-                        <a href="partylist.html" class="href">
+                        <a href="/partylist" class="href">
                             <span>Partylist</span>
                         </a>
                     </li>
                 </ul>
             </li>
             <li>
-                <a href="profile.html" class="href">
+                <a href="/profile" class="href">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Zm80-80h480v-32q0-11-5.5-20T700-306q-54-27-109-40.5T480-360q-56 0-111 13.5T260-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T560-640q0-33-23.5-56.5T480-720q-33 0-56.5 23.5T400-640q0 33 23.5 56.5T480-560Zm0-80Zm0 400Z"/></svg>
-                    <span>
-                        Profile
-                    </span>
+                    <span>Profile</span>
                 </a>
             </li>
         </ul>
@@ -95,160 +87,26 @@
             </ul>
         </div>
     </nav>
+    
     <main>
         <div class="voting-header">
             <h1>Student Council Elections 2026</h1>
             <p>Cast your vote for each position below. You can only vote once per position.</p>
         </div>
 
-        <!-- President Position -->
-        <div class="position-container">
-            <h2 class="position-title">President</h2>
-            <div class="candidates-grid">
-                <div class="candidate-card">
-                    <div class="candidate-info">
-                        <div class="candidate-avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="currentColor"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg>
-                        </div>
-                        <div class="candidate-details">
-                            <h3 class="candidate-name">Candidate 1</h3>
-                            <p class="candidate-party">Party A</p>
-                        </div>
-                    </div>
-                    <button class="vote-btn" data-position="president" data-candidate="1">Vote</button>
-                </div>
-
-                <div class="candidate-card">
-                    <div class="candidate-info">
-                        <div class="candidate-avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="currentColor"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg>
-                        </div>
-                        <div class="candidate-details">
-                            <h3 class="candidate-name">Candidate 2</h3>
-                            <p class="candidate-party">Party B</p>
-                        </div>
-                    </div>
-                    <button class="vote-btn" data-position="president" data-candidate="2">Vote</button>
-                </div>
-
-                <div class="candidate-card">
-                    <div class="candidate-info">
-                        <div class="candidate-avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="currentColor"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg>
-                        </div>
-                        <div class="candidate-details">
-                            <h3 class="candidate-name">Candidate 3</h3>
-                            <p class="candidate-party">Independent</p>
-                        </div>
-                    </div>
-                    <button class="vote-btn" data-position="president" data-candidate="3">Vote</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Vice President Position -->
-        <div class="position-container">
-            <h2 class="position-title">Vice President</h2>
-            <div class="candidates-grid">
-                <div class="candidate-card">
-                    <div class="candidate-info">
-                        <div class="candidate-avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="currentColor"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg>
-                        </div>
-                        <div class="candidate-details">
-                            <h3 class="candidate-name">Candidate 4</h3>
-                            <p class="candidate-party">Party A</p>
-                        </div>
-                    </div>
-                    <button class="vote-btn" data-position="vice-president" data-candidate="4">Vote</button>
-                </div>
-
-                <div class="candidate-card">
-                    <div class="candidate-info">
-                        <div class="candidate-avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="currentColor"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg>
-                        </div>
-                        <div class="candidate-details">
-                            <h3 class="candidate-name">Candidate 5</h3>
-                            <p class="candidate-party">Party B</p>
-                        </div>
-                    </div>
-                    <button class="vote-btn" data-position="vice-president" data-candidate="5">Vote</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Secretary Position -->
-        <div class="position-container">
-            <h2 class="position-title">Secretary</h2>
-            <div class="candidates-grid">
-                <div class="candidate-card">
-                    <div class="candidate-info">
-                        <div class="candidate-avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="currentColor"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg>
-                        </div>
-                        <div class="candidate-details">
-                            <h3 class="candidate-name">Candidate 6</h3>
-                            <p class="candidate-party">Party A</p>
-                        </div>
-                    </div>
-                    <button class="vote-btn" data-position="secretary" data-candidate="6">Vote</button>
-                </div>
-
-                <div class="candidate-card">
-                    <div class="candidate-info">
-                        <div class="candidate-avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="currentColor"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg>
-                        </div>
-                        <div class="candidate-details">
-                            <h3 class="candidate-name">Candidate 7</h3>
-                            <p class="candidate-party">Independent</p>
-                        </div>
-                    </div>
-                    <button class="vote-btn" data-position="secretary" data-candidate="7">Vote</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Treasurer Position -->
-        <div class="position-container">
-            <h2 class="position-title">Treasurer</h2>
-            <div class="candidates-grid">
-                <div class="candidate-card">
-                    <div class="candidate-info">
-                        <div class="candidate-avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="currentColor"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg>
-                        </div>
-                        <div class="candidate-details">
-                            <h3 class="candidate-name">Candidate 8</h3>
-                            <p class="candidate-party">Party B</p>
-                        </div>
-                    </div>
-                    <button class="vote-btn" data-position="treasurer" data-candidate="8">Vote</button>
-                </div>
-
-                <div class="candidate-card">
-                    <div class="candidate-info">
-                        <div class="candidate-avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="currentColor"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg>
-                        </div>
-                        <div class="candidate-details">
-                            <h3 class="candidate-name">Candidate 9</h3>
-                            <p class="candidate-party">Party A</p>
-                        </div>
-                    </div>
-                    <button class="vote-btn" data-position="auditor" data-candidate="11">Vote</button>
-                </div>
-            </div>
-        </div>
+        <!-- Positions will be rendered here dynamically -->
+        <div id="positions-wrapper"></div>
 
         <!-- Submit Vote Button -->
         <div class="submit-container">
             <button class="submit-vote-btn" id="submit-vote-btn">Submit Your Vote</button>
-            <p class="vote-disclaimer">By submitting, you confirm that your votes are final and cannot be changed.</p>
+            <p class="vote-disclaimer">
+                By submitting, you confirm that your votes are final and cannot be changed.
+            </p>
         </div>
     </main>
-    <script src="./sidebar.js"></script>
-    <script src="./voting.js"></script>
+
+    <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
+    <script src="{{ url_for('static', filename='voting.js') }}"></script>
 </body>
 </html>
