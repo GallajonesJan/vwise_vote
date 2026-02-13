@@ -517,6 +517,140 @@ def get_partylists():
         cursor.close()
         conn.close()
 
+@app.route('/submit-partylist', methods=['POST'])
+@login_required()
+def submit_partylist():
+    data = request.json
+    
+    print("Received partylist data:", data)
+    
+    # Extract form data
+    partylist_name = data.get('partylist_name')
+    platform = data.get('platform')
+    president_name = data.get('president_name')
+    president_student_id = data.get('president_student_id')
+    contact_email = data.get('contact_email')
+    contact_number = data.get('contact_number', '')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        query = """
+            INSERT INTO partylists 
+            (partylist_name, platform, president_name, president_student_id, 
+             contact_email, contact_number, approved, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, 0, NOW())
+        """
+        
+        cursor.execute(query, (
+            partylist_name, platform, president_name, president_student_id,
+            contact_email, contact_number
+        ))
+        
+        conn.commit()
+        print("Partylist registered successfully!")
+        
+        return jsonify({
+            "success": True, 
+            "message": "Partylist registration submitted successfully! Awaiting admin approval."
+        }), 201
+        
+    except mysql.connector.Error as e:
+        print("Database error:", str(e))
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
+    
+    except Exception as e:
+        print("General error:", str(e))
+        return jsonify({"error": str(e)}), 400
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/get-pending-partylists', methods=['GET'])
+@login_required(role='ADMIN')
+def get_pending_partylists():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT id, partylist_name, platform, president_name, president_student_id,
+               contact_email, contact_number, approved, created_at
+        FROM partylists
+        ORDER BY created_at DESC
+    """)
+
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return jsonify(rows)
+
+@app.route('/approve-partylist/<int:partylist_id>', methods=['POST'])
+@login_required(role='ADMIN')
+def approve_partylist(partylist_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("""
+            UPDATE partylists 
+            SET approved = 1 
+            WHERE id = %s
+        """, (partylist_id,))
+        
+        conn.commit()
+        return jsonify({"success": True, "message": "Partylist approved successfully!"})
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/reject-partylist/<int:partylist_id>', methods=['POST'])
+@login_required(role='ADMIN')
+def reject_partylist(partylist_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("""
+            UPDATE partylists 
+            SET approved = 0 
+            WHERE id = %s
+        """, (partylist_id,))
+        
+        conn.commit()
+        return jsonify({"success": True, "message": "Partylist approval revoked!"})
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/delete-partylist/<int:partylist_id>', methods=['DELETE'])
+@login_required(role='ADMIN')
+def delete_partylist(partylist_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("DELETE FROM partylists WHERE id = %s", (partylist_id,))
+        conn.commit()
+        return jsonify({"success": True, "message": "Partylist deleted successfully!"})
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
+
 @app.route('/logout')
 def logout():
     session.clear()

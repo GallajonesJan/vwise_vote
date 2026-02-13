@@ -223,6 +223,12 @@
         </a>
       </li>
       <li>
+        <a href="#" class="href" data-section="partylistApproval">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-320q-33 0-56.5-23.5T160-400q0-33 23.5-56.5T240-480q33 0 56.5 23.5T320-400q0 33-23.5 56.5T240-320Zm480 0q-33 0-56.5-23.5T640-400q0-33 23.5-56.5T720-480q33 0 56.5 23.5T800-400q0 33-23.5 56.5T720-320Zm-240-40q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM284-120q14-69 68.5-114.5T480-280q73 0 127.5 45.5T676-120H284Zm-204 0q0-66 47-113t113-47q17 0 32 3t29 9q-30 29-50 66.5T224-120H80Zm656 0q-7-44-27-81.5T659-268q14-6 29-9t32-3q66 0 113 47t47 113H736ZM88-480l-48-64 440-336 160 122v-82h120v174l160 122-48 64-392-299L88-480Z"/></svg>
+          <span>Partylist Approval</span>
+        </a>
+      </li>
+      <li>
         <a href="#" class="href" data-section="candidates">
           <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780Zm-455-80h311q-10-20-55.5-35T480-370q-55 0-100.5 15T325-320ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Zm0-80q17 0 28.5-11.5T520-600q0-17-11.5-28.5T480-640q-17 0-28.5 11.5T440-600q0 17 11.5 28.5T480-560Zm1 240Zm-1-280Z"/></svg>
           <span>Add Candidates</span>
@@ -340,6 +346,38 @@
       </div>
     </div>
 
+    <!-- Partylist Approval Section -->
+    <section id="partylistApprovalSection" class="content-section">
+      <h2>Partylist Approval</h2>
+      <p style="color: #757575; margin-bottom: 2rem;">Review and approve partylists for the Student Council Elections</p>
+
+      <div class="filter-tabs">
+        <button class="tab-btn-pl active" data-filter="all">All Partylists</button>
+        <button class="tab-btn-pl" data-filter="pending">Pending</button>
+        <button class="tab-btn-pl" data-filter="approved">Approved</button>
+      </div>
+
+      <div id="partylists-list" class="candidates-list">
+        <!-- Partylists will be loaded here dynamically -->
+      </div>
+    </section>
+
+    <!-- Partylist Details Modal -->
+    <div id="partylistModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Partylist Details</h2>
+          <button class="modal-close" onclick="closePartylistModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="partylistDetailsBody">
+          <!-- Details will be loaded here -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closePartylistModal()">Close</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Add Candidates Section -->
     <section id="candidatesSection" class="content-section">
       <h2>Add Candidates</h2>
@@ -452,9 +490,11 @@
       loadResults();
       loadVotingStatus();
       loadCandidatesForApproval();
+      loadPartylistsForApproval();
       setupNavigation();
       setupFileHandlers();
       setupApprovalTabs();
+      setupPartylistApprovalTabs();
     };
 
     // Navigation
@@ -764,6 +804,268 @@
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         closeCandidateModal();
+        closePartylistModal();
+      }
+    });
+
+    // =====================
+    // PARTYLIST APPROVAL
+    // =====================
+    
+    let allPartylists = [];
+
+    function setupPartylistApprovalTabs() {
+      document.querySelectorAll('.tab-btn-pl').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.tab-btn-pl').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          const filter = this.dataset.filter;
+          filterPartylists(filter);
+        });
+      });
+    }
+
+    async function loadPartylistsForApproval() {
+      try {
+        console.log('Loading partylists from /get-pending-partylists...');
+        const response = await fetch('/get-pending-partylists');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        allPartylists = await response.json();
+        console.log('Loaded partylists:', allPartylists);
+        
+        if (!allPartylists || allPartylists.length === 0) {
+          console.warn('No partylists found in database');
+        }
+        
+        filterPartylists('all');
+        
+      } catch (error) {
+        console.error('Error loading partylists:', error);
+        document.getElementById('partylists-list').innerHTML = 
+          `<div class="card"><p class="error" style="color: red; padding: 2rem; text-align: center;">
+            Failed to load partylists: ${error.message}<br>
+            <small>Check browser console and Flask server logs for details</small>
+          </p></div>`;
+      }
+    }
+
+    function filterPartylists(filter) {
+      let filtered = allPartylists;
+      
+      if (filter === 'pending') {
+        filtered = allPartylists.filter(p => p.approved === 0 || p.approved === null);
+      } else if (filter === 'approved') {
+        filtered = allPartylists.filter(p => p.approved === 1);
+      }
+      
+      renderPartylists(filtered);
+    }
+
+    function renderPartylists(partylists) {
+      const container = document.getElementById('partylists-list');
+      
+      if (!container) return;
+      
+      if (partylists.length === 0) {
+        container.innerHTML = '<div class="card"><p style="text-align: center; padding: 2rem; color: #757575;">No partylists found.</p></div>';
+        return;
+      }
+      
+      container.innerHTML = partylists.map(partylist => `
+        <div class="candidate-item ${partylist.approved === 1 ? 'approved' : 'pending'}">
+          <div class="candidate-details">
+            <h3>${partylist.partylist_name}</h3>
+            <div class="candidate-meta">
+              <span class="badge">President: ${partylist.president_name}</span>
+              <span class="badge">${partylist.president_student_id}</span>
+            </div>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+              <strong>Email:</strong> ${partylist.contact_email}<br>
+              ${partylist.contact_number ? `<strong>Phone:</strong> ${partylist.contact_number}<br>` : ''}
+              <strong>Platform:</strong> ${partylist.platform ? partylist.platform.substring(0, 150) + '...' : 'N/A'}
+            </p>
+            <p class="applied-date">Registered: ${new Date(partylist.created_at).toLocaleDateString()}</p>
+          </div>
+          
+          <div class="candidate-status">
+            ${partylist.approved === 1 
+              ? '<span class="status-approved">✓ Approved</span>' 
+              : '<span class="status-pending">Pending</span>'
+            }
+          </div>
+          
+          <div class="candidate-actions">
+            <button class="btn-info" onclick="viewPartylistDetails(${partylist.id})" title="View Full Details">
+              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z"/></svg>
+              View Details
+            </button>
+            ${partylist.approved !== 1 
+              ? `<button class="btn-approve" onclick="approvePartylist(${partylist.id})">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>
+                  Approve
+                 </button>`
+              : `<button class="btn-reject" onclick="revokePartylist(${partylist.id})">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+                  Revoke
+                 </button>`
+            }
+            <button class="btn-delete" onclick="deletePartylist(${partylist.id})">
+              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
+              Delete
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function approvePartylist(id) {
+      if (!confirm('Are you sure you want to approve this partylist?')) return;
+      
+      try {
+        const response = await fetch(`/approve-partylist/${id}`, {
+          method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('✅ Partylist approved successfully!');
+          loadPartylistsForApproval();
+        } else {
+          alert('❌ ' + (data.error || 'Failed to approve partylist'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while approving the partylist');
+      }
+    }
+
+    async function revokePartylist(id) {
+      if (!confirm('Are you sure you want to revoke approval for this partylist?')) return;
+      
+      try {
+        const response = await fetch(`/reject-partylist/${id}`, {
+          method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('✅ Partylist approval revoked!');
+          loadPartylistsForApproval();
+        } else {
+          alert('❌ ' + (data.error || 'Failed to revoke approval'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred');
+      }
+    }
+
+    async function deletePartylist(id) {
+      if (!confirm('⚠️ Are you sure you want to DELETE this partylist? This action cannot be undone!')) return;
+      
+      try {
+        const response = await fetch(`/delete-partylist/${id}`, {
+          method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('✅ Partylist deleted successfully!');
+          loadPartylistsForApproval();
+        } else {
+          alert('❌ ' + (data.error || 'Failed to delete partylist'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while deleting the partylist');
+      }
+    }
+
+    // View Partylist Details in Modal
+    function viewPartylistDetails(partylistId) {
+      const partylist = allPartylists.find(p => p.id === partylistId);
+      
+      if (!partylist) {
+        alert('Partylist not found');
+        return;
+      }
+
+      const modal = document.getElementById('partylistModal');
+      const modalBody = document.getElementById('partylistDetailsBody');
+      
+      modalBody.innerHTML = `
+        <div class="detail-section">
+          <h3>Partylist Information</h3>
+          <div class="detail-row">
+            <div class="detail-label">Partylist Name:</div>
+            <div class="detail-value">${partylist.partylist_name}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Registration Date:</div>
+            <div class="detail-value">${new Date(partylist.created_at).toLocaleString()}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Status:</div>
+            <div class="detail-value">
+              <span class="status-badge-modal ${partylist.approved === 1 ? 'approved' : 'pending'}">
+                ${partylist.approved === 1 ? '✓ Approved' : 'Pending Approval'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>President Information</h3>
+          <div class="detail-row">
+            <div class="detail-label">Full Name:</div>
+            <div class="detail-value">${partylist.president_name}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Student ID:</div>
+            <div class="detail-value">${partylist.president_student_id}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Contact Email:</div>
+            <div class="detail-value">${partylist.contact_email}</div>
+          </div>
+          ${partylist.contact_number ? `
+          <div class="detail-row">
+            <div class="detail-label">Contact Number:</div>
+            <div class="detail-value">${partylist.contact_number}</div>
+          </div>
+          ` : ''}
+        </div>
+
+        <div class="detail-section">
+          <h3>Platform / Advocacy</h3>
+          <div class="detail-value platform">${partylist.platform || 'No platform provided'}</div>
+        </div>
+      `;
+
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Close Partylist Modal
+    function closePartylistModal() {
+      const modal = document.getElementById('partylistModal');
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Close partylist modal when clicking outside
+    document.addEventListener('click', function(e) {
+      const modal = document.getElementById('partylistModal');
+      if (e.target === modal) {
+        closePartylistModal();
       }
     });
 
