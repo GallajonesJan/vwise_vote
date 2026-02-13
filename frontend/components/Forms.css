@@ -137,6 +137,47 @@
     border-color: var(--accent-clr);
 }
 
+/* Photo Upload Styles - Add to Forms.css */
+
+/* File Input Styling */
+input[type="file"] {
+    width: 100%;
+    padding: 0.75em;
+    border: 2px dashed var(--line-clr);
+    border-radius: 0.5em;
+    background-color: var(--base-clr);
+    color: var(--text-clr);
+    font-family: inherit;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 200ms ease;
+}
+
+input[type="file"]:hover {
+    border-color: var(--accent-clr);
+    background-color: rgba(94, 99, 255, 0.05);
+}
+
+input[type="file"]:focus {
+    outline: none;
+    border-color: var(--accent-clr);
+    border-style: solid;
+    box-shadow: 0 0 0 3px rgba(94, 99, 255, 0.1);
+}
+
+/* Photo Preview Container */
+#photo-preview {
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    border: 1px solid var(--line-clr);
+}
+
+#preview-image {
+    display: block;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 @media (max-width: 800px) {
     .form-header h1 {
         font-size: 1.8em;

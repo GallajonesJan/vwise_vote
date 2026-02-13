@@ -474,26 +474,28 @@ def submit_candidacy():
     position = data.get('position')
     affiliation_type = data.get('affiliation_type')
     platform = data.get('platform')
-    partylist_id = data.get('partylist_id')  # Get partylist_id if provided
     
     # Photo is optional - set default or leave empty
     photo = data.get('photo', '')
+    
+    # Note: partylist_id is not stored in database
+    # We only track affiliation_type (partylist or independent)
     
     conn = get_db_connection()
     cursor = conn.cursor()
     
     try:
-        # Include partylist_id in the query
+        # Query WITHOUT partylist_id
         query = """
             INSERT INTO candidates 
             (first_name, last_name, student_id, email, college, year_level, 
-             position, affiliation_type, partylist_id, platform, photo, approved, created_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 0, NOW())
+             position, affiliation_type, platform, photo, approved, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 0, NOW())
         """
         
         cursor.execute(query, (
             first_name, last_name, student_id, email, college, year_level,
-            position, affiliation_type, partylist_id, platform, photo
+            position, affiliation_type, platform, photo
         ))
         
         conn.commit()

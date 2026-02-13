@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -149,6 +148,24 @@
                             <option value="4th Year">4th Year</option>
                         </select>
                     </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Candidate Photo</h2>
+                
+                <div class="form-group">
+                    <label for="candidate-photo">Upload Photo <span class="required">*</span></label>
+                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">
+                        Upload a professional photo (JPG or PNG, max 5MB). This will appear on your candidate profile.
+                    </p>
+                    <input type="file" id="candidate-photo" name="photo" accept="image/jpeg,image/jpg,image/png" required>
+                </div>
+
+                <div id="photo-preview" style="display: none; margin-top: 1rem;">
+                    <p style="font-size: 0.9rem; font-weight: 500; margin-bottom: 0.5rem;">Preview:</p>
+                    <img id="preview-image" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                    <button type="button" class="btn-secondary" onclick="removePhoto()" style="display: block; margin-top: 0.5rem; padding: 0.4rem 1rem;">Remove Photo</button>
                 </div>
             </div>
 

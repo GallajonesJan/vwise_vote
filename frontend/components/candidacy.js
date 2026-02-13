@@ -1,9 +1,58 @@
-// Candidacy Form Handler
+// Candidacy Form Handler with Photo Upload
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('candidacy-form');
     const affiliationSelect = document.getElementById('affiliation-type');
     const partylistGroup = document.getElementById('partylist-group');
     const partylistSelect = document.getElementById('partylist');
+    const photoInput = document.getElementById('candidate-photo');
+    const photoPreview = document.getElementById('photo-preview');
+    const previewImage = document.getElementById('preview-image');
+
+    let photoBase64 = null;
+
+    // Photo upload and preview
+    if (photoInput) {
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            if (!file) {
+                hidePhotoPreview();
+                return;
+            }
+
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!validTypes.includes(file.type)) {
+                alert('Please upload a JPG or PNG image.');
+                photoInput.value = '';
+                hidePhotoPreview();
+                return;
+            }
+
+            // Validate file size (5MB max)
+            const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            if (file.size > maxSize) {
+                alert('Image size must be less than 5MB. Please choose a smaller image.');
+                photoInput.value = '';
+                hidePhotoPreview();
+                return;
+            }
+
+            // Read and preview the image
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                photoBase64 = event.target.result;
+                previewImage.src = photoBase64;
+                photoPreview.style.display = 'block';
+                console.log('Photo loaded, size:', (photoBase64.length / 1024).toFixed(2), 'KB');
+            };
+            reader.onerror = function() {
+                alert('Error reading file. Please try again.');
+                hidePhotoPreview();
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     // Show/hide partylist dropdown based on affiliation type
     affiliationSelect.addEventListener('change', function() {
@@ -45,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
             partylists.forEach(party => {
                 const option = document.createElement('option');
                 option.value = party.id;
-                option.textContent = party.name;
+                option.textContent = party.name || party.partylist_name;
                 partylistSelect.appendChild(option);
             });
             
@@ -54,13 +103,36 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error loading partylists:', error);
             partylistSelect.innerHTML = '<option value="">Error loading partylists</option>';
             partylistSelect.disabled = true;
-            alert('Unable to load partylists. Please try again or contact support.');
+        }
+    }
+
+    // Remove photo function (global for onclick in HTML)
+    window.removePhoto = function() {
+        if (photoInput) {
+            photoInput.value = '';
+        }
+        photoBase64 = null;
+        hidePhotoPreview();
+    };
+
+    function hidePhotoPreview() {
+        if (photoPreview) {
+            photoPreview.style.display = 'none';
+        }
+        if (previewImage) {
+            previewImage.src = '';
         }
     }
 
     // Handle form submission
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
+
+        // Validate photo is uploaded
+        if (!photoBase64) {
+            alert('Please upload your candidate photo.');
+            return;
+        }
 
         // Get form data
         const formData = {
@@ -72,7 +144,8 @@ document.addEventListener('DOMContentLoaded', function() {
             year_level: document.getElementById('year-level').value,
             position: document.getElementById('position').value,
             affiliation_type: document.getElementById('affiliation-type').value,
-            platform: document.getElementById('platform').value.trim()
+            platform: document.getElementById('platform').value.trim(),
+            photo: photoBase64  // Add photo base64 string
         };
 
         // Add partylist_id if applicable
@@ -100,9 +173,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const submitBtn = form.querySelector('.btn-primary');
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Submitting...';
+        submitBtn.textContent = 'Uploading...';
 
         try {
+            console.log('Submitting candidacy application with photo...');
+            console.log('Photo size:', (photoBase64.length / 1024).toFixed(2), 'KB');
+            
             const response = await fetch('/submit-candidacy', {
                 method: 'POST',
                 headers: {
