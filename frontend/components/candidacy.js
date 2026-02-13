@@ -18,24 +18,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Load partylists from database (you'll need to create this endpoint)
+    // Load partylists from database
     async function loadPartylists() {
         try {
             const response = await fetch('/get-partylists');
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch partylists from server');
+            }
+            
             const partylists = await response.json();
             
             // Clear existing options except the first one
             partylistSelect.innerHTML = '<option value="">Select Partylist</option>';
             
-            // Add partylists to dropdown
+            // Check if there are any approved partylists
+            if (partylists.length === 0) {
+                partylistSelect.innerHTML = '<option value="">No approved partylists available</option>';
+                partylistSelect.disabled = true;
+                console.warn('No approved partylists found in database');
+                return;
+            }
+            
+            // Enable select and add partylists to dropdown
+            partylistSelect.disabled = false;
             partylists.forEach(party => {
                 const option = document.createElement('option');
                 option.value = party.id;
                 option.textContent = party.name;
                 partylistSelect.appendChild(option);
             });
+            
+            console.log(`Loaded ${partylists.length} partylists successfully`);
         } catch (error) {
             console.error('Error loading partylists:', error);
+            partylistSelect.innerHTML = '<option value="">Error loading partylists</option>';
+            partylistSelect.disabled = true;
+            alert('Unable to load partylists. Please try again or contact support.');
         }
     }
 
@@ -79,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Disable submit button
         const submitBtn = form.querySelector('.btn-primary');
+        const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
         submitBtn.textContent = 'Submitting...';
 
@@ -93,12 +113,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const result = await response.json();
 
-            if (response.ok) {
+            if (response.ok && result.success) {
                 alert(result.message || 'Application submitted successfully!');
                 // Redirect to home page
                 window.location.href = 'userhome.html';
             } else {
-                throw new Error(result.error || 'Failed to submit application');
+                throw new Error(result.error || result.message || 'Failed to submit application');
             }
         } catch (error) {
             console.error('Error:', error);
@@ -106,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Re-enable submit button
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Submit Application';
+            submitBtn.textContent = originalText;
         }
     });
 });

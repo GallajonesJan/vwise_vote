@@ -451,6 +451,7 @@ def submit_candidacy():
     position = data.get('position')
     affiliation_type = data.get('affiliation_type')
     platform = data.get('platform')
+    partylist_id = data.get('partylist_id')  # Get partylist_id if provided
     
     # Photo is optional - set default or leave empty
     photo = data.get('photo', '')
@@ -459,17 +460,17 @@ def submit_candidacy():
     cursor = conn.cursor()
     
     try:
-        # Match EXACTLY the columns shown in your database screenshot
+        # Include partylist_id in the query
         query = """
             INSERT INTO candidates 
             (first_name, last_name, student_id, email, college, year_level, 
-             position, affiliation_type, platform, photo, approved, created_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 0, NOW())
+             position, affiliation_type, partylist_id, platform, photo, approved, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 0, NOW())
         """
         
         cursor.execute(query, (
             first_name, last_name, student_id, email, college, year_level,
-            position, affiliation_type, platform, photo
+            position, affiliation_type, partylist_id, platform, photo
         ))
         
         conn.commit()
@@ -505,7 +506,7 @@ def get_partylists():
         if not table_exists:
             return jsonify([])
         
-        cursor.execute("SELECT id, name FROM partylists WHERE approved = 1 ORDER BY name")
+        cursor.execute("SELECT id, partylist_name as name FROM partylists WHERE approved = 1 ORDER BY partylist_name")
         partylists = cursor.fetchall()
         return jsonify(partylists)
     

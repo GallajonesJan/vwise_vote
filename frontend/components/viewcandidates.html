@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="./userhome.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='userhome.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='viewcandidates.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote Now</title>
+    <title>View Candidates | V - Wise</title>
 </head>
 <body>
-        <nav id="sidebar">
+    <nav id="sidebar">
         <ul>
             <li>
                 <button id="toggle-btn">
@@ -18,9 +19,7 @@
             <li>
                 <a href="userhome.html" class="href">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z"/></svg>
-                    <span>
-                        Home
-                    </span>
+                    <span>Home</span>
                 </a>
             </li>
             <li>
@@ -32,17 +31,13 @@
             <li class="active">
                 <a href="viewcandidates.html" class="href">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M80-160v-112q0-33 17-62t47-44q51-26 115-44t141-18q30 0 58.5 3t55.5 9l-70 70q-11-2-21.5-2H400q-71 0-127.5 17T180-306q-9 5-14.5 14t-5.5 20v32h250l80 80H80Zm542 16L484-282l56-56 82 82 202-202 56 56-258 258ZM400-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm10 240Zm-10-320q33 0 56.5-23.5T480-640q0-33-23.5-56.5T400-720q-33 0-56.5 23.5T320-640q0 33 23.5 56.5T400-560Zm0-80Z"/></svg>
-                    <span>
-                        View Candidates
-                    </span>
+                    <span>View Candidates</span>
                 </a>
             </li>
             <li>
                 <a href="viewparties.html" class="href">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-320q-33 0-56.5-23.5T160-400q0-33 23.5-56.5T240-480q33 0 56.5 23.5T320-400q0 33-23.5 56.5T240-320Zm480 0q-33 0-56.5-23.5T640-400q0-33 23.5-56.5T720-480q33 0 56.5 23.5T800-400q0 33-23.5 56.5T720-320Zm-240-40q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM284-120q14-69 68.5-114.5T480-280q73 0 127.5 45.5T676-120H284Zm-204 0q0-66 47-113t113-47q17 0 32 3t29 9q-30 29-50 66.5T224-120H80Zm656 0q-7-44-27-81.5T659-268q14-6 29-9t32-3q66 0 113 47t47 113H736ZM88-480l-48-64 440-336 160 122v-82h120v174l160 122-48 64-392-299L88-480Z"/></svg>
-                    <span>
-                        View Parties
-                    </span>
+                    <span>View Parties</span>
                 </a>
             </li>
             <li class="dropdown">
@@ -67,9 +62,7 @@
             <li>
                 <a href="profile.html" class="href">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Zm80-80h480v-32q0-11-5.5-20T700-306q-54-27-109-40.5T480-360q-56 0-111 13.5T260-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T560-640q0-33-23.5-56.5T480-720q-33 0-56.5 23.5T400-640q0 33 23.5 56.5T480-560Zm0-80Zm0 400Z"/></svg>
-                    <span>
-                        Profile
-                    </span>
+                    <span>Profile</span>
                 </a>
             </li>
         </ul>
@@ -94,6 +87,62 @@
             </ul>
         </div>
     </nav>
-    <script src="./sidebar.js"></script>
+
+    <main>
+        <div class="page-header">
+            <h1>View Candidates</h1>
+            <p>Browse all approved candidates for Student Council Elections 2026</p>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-group">
+                <label for="position-filter">Filter by Position:</label>
+                <select id="position-filter">
+                    <option value="all">All Positions</option>
+                    <option value="1">President</option>
+                    <option value="2">Vice President</option>
+                    <option value="3">Secretary</option>
+                    <option value="4">Assistant Secretary</option>
+                    <option value="5">Treasurer</option>
+                    <option value="6">Auditor</option>
+                    <option value="7">PIO (Public Information Officer)</option>
+                    <option value="8">COE Representative</option>
+                    <option value="9">CBAA Representative</option>
+                    <option value="10">CTE Representative</option>
+                    <option value="11">CCS Representative</option>
+                    <option value="12">CCJE Representative</option>
+                    <option value="13">CIT Representative</option>
+                    <option value="14">CAS Representative</option>
+                    <option value="15">CHMT Representative</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="affiliation-filter">Filter by Affiliation:</label>
+                <select id="affiliation-filter">
+                    <option value="all">All Affiliations</option>
+                    <option value="partylist">Partylist Members</option>
+                    <option value="independent">Independent Candidates</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading candidates...</p>
+        </div>
+
+        <div id="candidates-container" class="candidates-container" style="display: none;">
+            <!-- Candidates will be loaded here dynamically -->
+        </div>
+
+        <div id="no-candidates" class="no-candidates" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" height="64px" viewBox="0 -960 960 960" width="64px" fill="#999"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg>
+            <p>No candidates found matching your criteria.</p>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
+    <script src="{{ url_for('static', filename='viewcandidates.js') }}"></script>
 </body>
 </html>
