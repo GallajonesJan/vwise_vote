@@ -230,6 +230,29 @@ def submit_vote():
         conn.close()
 
 
+@app.route('/get-candidates-simple', methods=['GET'])
+def get_candidates_simple():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT 
+            id,
+            first_name,
+            last_name,
+            college,
+            position
+        FROM candidates
+        WHERE approved = 1
+        ORDER BY CAST(position AS UNSIGNED), last_name ASC
+    """)
+
+    rows = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(rows)
 
 
 @app.route('/get-candidates', methods=['GET'])

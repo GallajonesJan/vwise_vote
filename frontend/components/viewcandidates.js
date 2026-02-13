@@ -19,6 +19,25 @@ const POSITIONS = {
     '15': 'CHMT Representative'
 };
 
+const POSITION_ORDER = [
+    '1',  // President
+    '2',  // Vice President
+    '3',  // Secretary
+    '4',  // Assistant Secretary
+    '5',  // Treasurer
+    '6',  // Auditor
+    '7',  // PIO
+    '8',
+    '9',
+    '10',
+    '11',
+    '12',
+    '13',
+    '14',
+    '15'
+];
+
+
 let allCandidates = [];
 let partylists = {};
 
@@ -59,7 +78,7 @@ async function loadCandidates() {
         });
 
         // Fetch candidates
-        const response = await fetch('/get-candidates');
+        const response = await fetch('/get-candidates-simple');
         
         if (!response.ok) {
             throw new Error('Failed to fetch candidates');
@@ -115,7 +134,7 @@ function displayCandidates(candidates) {
     const container = document.getElementById('candidates-container');
     const noCandidatesDiv = document.getElementById('no-candidates');
 
-    if (candidates.length === 0) {
+    if (!candidates.length) {
         container.style.display = 'none';
         noCandidatesDiv.style.display = 'block';
         return;
@@ -124,63 +143,19 @@ function displayCandidates(candidates) {
     container.style.display = 'block';
     noCandidatesDiv.style.display = 'none';
 
-    // Group candidates by partylist
-    const grouped = groupCandidates(candidates);
+    const groupedByPosition = groupByPosition(candidates);
 
-    // Build HTML
     let html = '';
 
-    // Display partylist groups first
-    const partylistGroups = Object.entries(grouped.partylists).sort((a, b) => {
-        return a[1].name.localeCompare(b[1].name);
-    });
+    POSITION_ORDER.forEach(positionId => {
+        const positionCandidates = groupedByPosition[positionId];
+        if (!positionCandidates) return;
 
-    partylistGroups.forEach(([partylistId, data]) => {
-        html += createPartyGroup(data.name, data.candidates, false);
+        html += createPositionBlock(positionId, positionCandidates);
     });
-
-    // Display independent candidates
-    if (grouped.independent.length > 0) {
-        html += createPartyGroup('Independent Candidates', grouped.independent, true);
-    }
 
     container.innerHTML = html;
-
-    // Add event listeners to view details buttons
     addViewDetailsListeners();
-}
-
-// Group candidates by partylist and position
-function groupCandidates(candidates) {
-    const result = {
-        partylists: {},
-        independent: []
-    };
-
-    candidates.forEach(candidate => {
-        if (candidate.affiliation_type === 'partylist' && candidate.partylist_id) {
-            const partylistId = candidate.partylist_id;
-            const partylistName = partylists[partylistId] || `Partylist ${partylistId}`;
-
-            if (!result.partylists[partylistId]) {
-                result.partylists[partylistId] = {
-                    name: partylistName,
-                    candidates: []
-                };
-            }
-            result.partylists[partylistId].candidates.push(candidate);
-        } else {
-            result.independent.push(candidate);
-        }
-    });
-
-    // Sort candidates within each group by position
-    Object.values(result.partylists).forEach(group => {
-        group.candidates.sort((a, b) => parseInt(a.position) - parseInt(b.position));
-    });
-    result.independent.sort((a, b) => parseInt(a.position) - parseInt(b.position));
-
-    return result;
 }
 
 // Create HTML for a party group
@@ -293,6 +268,90 @@ function addViewDetailsListeners() {
         });
     });
 }
+
+function groupByPosition(candidates) {
+    const map = {};
+
+    candidates.forEach(candidate => {
+        if (!map[candidate.position]) {
+            map[candidate.position] = [];
+        }
+        map[candidate.position].push(candidate);
+    });
+
+    return map;
+}
+
+function createPositionBlock(positionId, candidates) {
+
+    const positionName = POSITIONS[positionId] || 'Unknown Position';
+
+    const grouped = {
+        partylists: {},
+        independent: []
+    };
+
+    candidates.forEach(candidate => {
+        if (candidate.affiliation_type === 'partylist' && candidate.partylist_id) {
+
+            if (!grouped.partylists[candidate.partylist_id]) {
+                grouped.partylists[candidate.partylist_id] = [];
+            }
+
+            grouped.partylists[candidate.partylist_id].push(candidate);
+
+        } else {
+            grouped.independent.push(candidate);
+        }
+    });
+
+    let html = `
+        <div class="position-section">
+            <div class="position-title main-position">${positionName}</div>
+    `;
+
+    /* ---- Partylist Groups ---- */
+
+    const sortedPartylists = Object.entries(grouped.partylists)
+        .sort((a, b) => {
+            const nameA = partylists[a[0]] || '';
+            const nameB = partylists[b[0]] || '';
+            return nameA.localeCompare(nameB);
+        });
+
+    sortedPartylists.forEach(([partylistId, partyCandidates]) => {
+        html += `
+            <div class="party-subgroup">
+                <div class="party-subgroup-title">
+                    ${partylists[partylistId] || 'Partylist'}
+                </div>
+                <div class="candidates-grid">
+                    ${partyCandidates.map(createCandidateCard).join('')}
+                </div>
+            </div>
+        `;
+    });
+
+    /* ---- Independent Candidates ---- */
+
+    if (grouped.independent.length) {
+        html += `
+            <div class="party-subgroup">
+                <div class="party-subgroup-title independent">
+                    Independent Candidates
+                </div>
+                <div class="candidates-grid">
+                    ${grouped.independent.map(createCandidateCard).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    html += `</div>`;
+
+    return html;
+}
+
 
 // Show candidate details in modal
 function showCandidateModal(candidateId) {

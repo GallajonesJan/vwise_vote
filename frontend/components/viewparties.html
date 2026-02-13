@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="./userhome.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='userhome.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='viewcandidates.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vote Now</title>
 </head>
@@ -94,6 +95,7 @@
             </ul>
         </div>
     </nav>
-    <script src="./sidebar.js"></script>
+    <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
+    <script src="{{ url_for('static', filename='viewcandidates.js') }}"></script>
 </body>
 </html>
