@@ -2,9 +2,142 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-        <link rel="stylesheet" href="{{ url_for('static', filename='userhome.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='userhome.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote Now</title>
+    <title>Profile | V - Wise</title>
+    <style>
+        .profile-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .profile-header {
+            margin-bottom: 2rem;
+        }
+        
+        .profile-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-header p {
+            color: var(--secondary-text-clr);
+        }
+        
+        .profile-card {
+            background: var(--base-clr);
+            border: 1px solid var(--line-clr);
+            border-radius: 1em;
+            padding: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-clr);
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--line-clr);
+            border-radius: 0.5em;
+            background: var(--base-clr);
+            color: var(--text-clr);
+            font-family: inherit;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-clr);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        @media (max-width: 500px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.5em;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 200ms ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-clr);
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4a4fff;
+        }
+        
+        .btn-secondary {
+            background-color: var(--line-clr);
+            color: var(--text-clr);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--hover-clr);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5em;
+            margin-bottom: 1.5rem;
+        }
+        
+        .alert-success {
+            background-color: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+            color: #4caf50;
+        }
+        
+        .alert-error {
+            background-color: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            color: #f44336;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--secondary-text-clr);
+        }
+        
+        .password-note {
+            font-size: 0.85rem;
+            color: var(--secondary-text-clr);
+            margin-top: 0.25rem;
+        }
+    </style>
 </head>
 <body>
     <nav id="sidebar">
@@ -18,9 +151,7 @@
             <li>
                 <a href="userhome.html" class="href">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z"/></svg>
-                    <span>
-                        Home
-                    </span>
+                    <span>Home</span>
                 </a>
             </li>
             <li>
@@ -32,17 +163,13 @@
             <li>
                 <a href="viewcandidates.html" class="href">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M80-160v-112q0-33 17-62t47-44q51-26 115-44t141-18q30 0 58.5 3t55.5 9l-70 70q-11-2-21.5-2H400q-71 0-127.5 17T180-306q-9 5-14.5 14t-5.5 20v32h250l80 80H80Zm542 16L484-282l56-56 82 82 202-202 56 56-258 258ZM400-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm10 240Zm-10-320q33 0 56.5-23.5T480-640q0-33-23.5-56.5T400-720q-33 0-56.5 23.5T320-640q0 33 23.5 56.5T400-560Zm0-80Z"/></svg>
-                    <span>
-                        View Candidates
-                    </span>
+                    <span>View Candidates</span>
                 </a>
             </li>
             <li>
                 <a href="viewparties.html" class="href">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-320q-33 0-56.5-23.5T160-400q0-33 23.5-56.5T240-480q33 0 56.5 23.5T320-400q0 33-23.5 56.5T240-320Zm480 0q-33 0-56.5-23.5T640-400q0-33 23.5-56.5T720-480q33 0 56.5 23.5T800-400q0 33-23.5 56.5T720-320Zm-240-40q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM284-120q14-69 68.5-114.5T480-280q73 0 127.5 45.5T676-120H284Zm-204 0q0-66 47-113t113-47q17 0 32 3t29 9q-30 29-50 66.5T224-120H80Zm656 0q-7-44-27-81.5T659-268q14-6 29-9t32-3q66 0 113 47t47 113H736ZM88-480l-48-64 440-336 160 122v-82h120v174l160 122-48 64-392-299L88-480Z"/></svg>
-                    <span>
-                        View Parties
-                    </span>
+                    <span>View Parties</span>
                 </a>
             </li>
             <li class="dropdown">
@@ -67,9 +194,7 @@
             <li class="active">
                 <a href="profile.html" class="href">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Zm80-80h480v-32q0-11-5.5-20T700-306q-54-27-109-40.5T480-360q-56 0-111 13.5T260-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T560-640q0-33-23.5-56.5T480-720q-33 0-56.5 23.5T400-640q0 33 23.5 56.5T480-560Zm0-80Zm0 400Z"/></svg>
-                    <span>
-                        Profile
-                    </span>
+                    <span>Profile</span>
                 </a>
             </li>
         </ul>
@@ -94,6 +219,93 @@
             </ul>
         </div>
     </nav>
+
+    <main>
+        <div class="profile-container">
+            <div class="profile-header">
+                <h1>Edit Profile</h1>
+                <p>Update your personal information</p>
+            </div>
+
+            <div id="loading" class="loading">
+                Loading profile...
+            </div>
+
+            <div id="profile-content" class="profile-card" style="display: none;">
+                <div id="alert-container"></div>
+                
+                <form id="profile-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstname">First Name</label>
+                            <input type="text" id="firstname" name="firstname" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="middlename">Middle Name</label>
+                            <input type="text" id="middlename" name="middlename">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastname">Last Name</label>
+                        <input type="text" id="lastname" name="lastname" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="studentNumber">Student Number</label>
+                            <input type="text" id="studentNumber" name="studentNumber" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="yearlevel">Year Level</label>
+                            <select id="yearlevel" name="yearlevel" required>
+                                <option value="">Select Year</option>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                                <option value="5">5th Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <select id="department" name="department" required>
+                            <option value="">Select Department</option>
+                            <option value="CICS">CICS - College of Information and Computing Sciences</option>
+                            <option value="CBAA">CBAA - College of Business and Accountancy</option>
+                            <option value="COE">COE - College of Engineering</option>
+                            <option value="CTE">CTE - College of Teacher Education</option>
+                            <option value="CCS">CCS - College of Computer Studies</option>
+                            <option value="CCJE">CCJE - College of Criminal Justice Education</option>
+                            <option value="CIT">CIT - College of Industrial Technology</option>
+                            <option value="CAS">CAS - College of Arts and Sciences</option>
+                            <option value="CHMT">CHMT - College of Hospitality and Tourism Management</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">New Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter new password to change">
+                        <p class="password-note">Leave blank to keep your current password</p>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" onclick="loadProfile()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
     <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
+    <script src="{{ url_for('static', filename='profile.js') }}"></script>
 </body>
 </html>

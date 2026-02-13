@@ -241,7 +241,8 @@ def get_candidates_simple():
             first_name,
             last_name,
             college,
-            position
+            position,
+            photo
         FROM candidates
         WHERE approved = 1
         ORDER BY CAST(position AS UNSIGNED), last_name ASC
@@ -681,6 +682,91 @@ def delete_partylist(partylist_id):
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
+# ----------------------------
+# User Profile Routes
+# ----------------------------
+
+@app.route('/get-user-profile', methods=['GET'])
+@login_required()
+def get_user_profile():
+    """Get the current user's profile data"""
+    user_id = session.get('user_id')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        cursor.execute("""
+            SELECT id, firstname, middlename, lastname, email, studentNumber, yearlevel, department
+            FROM accounts 
+            WHERE id = %s
+        """, (user_id,))
+        
+        user = cursor.fetchone()
+        
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        return jsonify(user)
+    
+    except Exception as e:
+        print("Error fetching user profile:", str(e))
+        return jsonify({"error": str(e)}), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/update-user-profile', methods=['PUT'])
+@login_required()
+def update_user_profile():
+    """Update the current user's profile data"""
+    user_id = session.get('user_id')
+    data = request.json
+    
+    firstname = data.get('firstname')
+    middlename = data.get('middlename')
+    lastname = data.get('lastname')
+    email = data.get('email')
+    yearlevel = data.get('yearlevel')
+    department = data.get('department')
+    password = data.get('password')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        # If password is provided, update it; otherwise keep the old password
+        if password and password.strip():
+            query = """
+                UPDATE accounts 
+                SET firstname = %s, middlename = %s, lastname = %s, 
+                    email = %s, yearlevel = %s, department = %s, password = %s
+                WHERE id = %s
+            """
+            cursor.execute(query, (firstname, middlename, lastname, email, 
+                                 yearlevel, department, password, user_id))
+        else:
+            query = """
+                UPDATE accounts 
+                SET firstname = %s, middlename = %s, lastname = %s, 
+                    email = %s, yearlevel = %s, department = %s
+                WHERE id = %s
+            """
+            cursor.execute(query, (firstname, middlename, lastname, email, 
+                                 yearlevel, department, user_id))
+        
+        conn.commit()
+        return jsonify({"success": True, "message": "Profile updated successfully!"})
+    
+    except Exception as e:
+        print("Error updating user profile:", str(e))
+        return jsonify({"error": str(e)}), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
 
 # Serve SVGs
 @app.route('/assets/svg/<path:filename>')
