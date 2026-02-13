@@ -237,22 +237,97 @@ def get_candidates():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
+    # Fetch all approved candidates
     cursor.execute("""
-        SELECT id, full_name, party, position
+        SELECT id, first_name, last_name, student_id, college, year_level,
+               position, affiliation_type, platform
         FROM candidates
         WHERE approved = 1
-        ORDER BY position
     """)
 
     rows = cursor.fetchall()
     cursor.close()
     conn.close()
-
-    # Group candidates by position
-    data = {}
+    
+    print("=== DEBUG: Raw candidates from database ===")
     for row in rows:
-        pos = row['position']
-        data.setdefault(pos, []).append(row)
+        print(f"ID: {row['id']}, Name: {row['first_name']} {row['last_name']}, Position: {row['position']} (type: {type(row['position'])})")
+    
+    # Position mapping
+    position_names = {
+        '1': 'President',
+        '2': 'Vice President',
+        '3': 'Secretary',
+        '4': 'Assistant Secretary',
+        '5': 'Treasurer',
+        '6': 'Auditor',
+        '7': 'PIO (Public Information Officer)',
+        '8': 'COE Representative',
+        '9': 'CBAA Representative',
+        '10': 'CTE Representative',
+        '11': 'CCS Representative',
+        '12': 'CCJE Representative',
+        '13': 'CIT Representative',
+        '14': 'CAS Representative',
+        '15': 'CHMT Representative'
+    }
+    
+    # Also handle integer keys
+    position_names_int = {
+        1: 'President',
+        2: 'Vice President',
+        3: 'Secretary',
+        4: 'Assistant Secretary',
+        5: 'Treasurer',
+        6: 'Auditor',
+        7: 'PIO (Public Information Officer)',
+        8: 'COE Representative',
+        9: 'CBAA Representative',
+        10: 'CTE Representative',
+        11: 'CCS Representative',
+        12: 'CCJE Representative',
+        13: 'CIT Representative',
+        14: 'CAS Representative',
+        15: 'CHMT Representative'
+    }
+    
+    # Format the data to include full_name, party, and position_name for display
+    for row in rows:
+        row['full_name'] = f"{row['first_name']} {row['last_name']}"
+        row['party'] = row['affiliation_type'].title() if row['affiliation_type'] else 'Independent'
+        
+        # Try to get position name from both string and int mappings
+        pos_key = row['position']
+        row['position_name'] = position_names.get(str(pos_key), position_names_int.get(pos_key, str(pos_key)))
+        
+        # Ensure position is treated as integer for sorting
+        try:
+            row['position_int'] = int(row['position'])
+        except (ValueError, TypeError):
+            row['position_int'] = 999  # Put invalid positions at the end
+        
+        print(f"Processed: {row['full_name']}, Position: {row['position']}, Position Int: {row['position_int']}, Position Name: {row['position_name']}")
+
+    # Sort by position number
+    rows.sort(key=lambda x: x['position_int'])
+    
+    print("=== DEBUG: After sorting ===")
+    for row in rows:
+        print(f"{row['position_int']}: {row['position_name']} - {row['full_name']}")
+    
+    # Group candidates by position NAME - maintain order with OrderedDict
+    from collections import OrderedDict
+    data = OrderedDict()
+    
+    for row in rows:
+        pos_name = row['position_name']
+        if pos_name not in data:
+            data[pos_name] = []
+        data[pos_name].append(row)
+
+    print("=== DEBUG: Final grouped data ===")
+    for pos_name in data.keys():
+        print(f"Position: {pos_name}, Count: {len(data[pos_name])}")
 
     return jsonify(data)
 
@@ -276,12 +351,20 @@ def get_pending_candidates():
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT id, full_name, party, position, created_at, approved
+        SELECT id, first_name, last_name, student_id, email, college, year_level,
+               position, affiliation_type, platform, photo, approved, created_at
         FROM candidates
         ORDER BY created_at DESC
     """)
 
     rows = cursor.fetchall()
+    
+    # Format the data to include full_name for display
+    for row in rows:
+        row['full_name'] = f"{row['first_name']} {row['last_name']}"
+        # Use affiliation_type as "party" for display
+        row['party'] = row['affiliation_type'].title() if row['affiliation_type'] else 'Independent'
+    
     cursor.close()
     conn.close()
 
@@ -346,6 +429,89 @@ def delete_candidate(candidate_id):
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/submit-candidacy', methods=['POST'])
+@login_required()
+def submit_candidacy():
+    data = request.json
+    
+    print("Received candidacy data:", data)  # Debug log
+    
+    # Extract form data
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    student_id = data.get('student_id')
+    email = data.get('email')
+    college = data.get('college')
+    year_level = data.get('year_level')
+    position = data.get('position')
+    affiliation_type = data.get('affiliation_type')
+    platform = data.get('platform')
+    
+    # Photo is optional - set default or leave empty
+    photo = data.get('photo', '')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        # Match EXACTLY the columns shown in your database screenshot
+        query = """
+            INSERT INTO candidates 
+            (first_name, last_name, student_id, email, college, year_level, 
+             position, affiliation_type, platform, photo, approved, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 0, NOW())
+        """
+        
+        cursor.execute(query, (
+            first_name, last_name, student_id, email, college, year_level,
+            position, affiliation_type, platform, photo
+        ))
+        
+        conn.commit()
+        print("Candidacy inserted successfully!")  # Debug log
+        
+        return jsonify({
+            "success": True, 
+            "message": "Candidacy application submitted successfully! Awaiting admin approval."
+        }), 201
+        
+    except mysql.connector.Error as e:
+        print("Database error:", str(e))  # Debug log
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
+    
+    except Exception as e:
+        print("General error:", str(e))  # Debug log
+        return jsonify({"error": str(e)}), 400
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/get-partylists', methods=['GET'])
+def get_partylists():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        # Check if partylists table exists, if not return empty array
+        cursor.execute("SHOW TABLES LIKE 'partylists'")
+        table_exists = cursor.fetchone()
+        
+        if not table_exists:
+            return jsonify([])
+        
+        cursor.execute("SELECT id, name FROM partylists WHERE approved = 1 ORDER BY name")
+        partylists = cursor.fetchall()
+        return jsonify(partylists)
+    
+    except Exception as e:
+        print("Error fetching partylists:", str(e))
+        return jsonify([])
     
     finally:
         cursor.close()

@@ -28,14 +28,64 @@ async function loadCandidates() {
         positionsWrapper.innerHTML = '';
 
         if (Object.keys(candidatesByPosition).length === 0) {
-            positionsWrapper.innerHTML = '<p class="error">No approved candidates found. Please check with your administrator.</p>';
+            positionsWrapper.innerHTML = `
+                <div class="error-message" style="text-align: center; padding: 3rem; background: #fff3cd; border-radius: 8px; margin: 2rem;">
+                    <h3 style="color: #856404;">No Approved Candidates Yet</h3>
+                    <p style="color: #856404;">There are currently no approved candidates for voting. Please check back later or contact the administrator.</p>
+                </div>
+            `;
             console.warn('⚠️ No candidates found!');
             return;
         }
 
-        // Render each position
-        for (const [position, candidates] of Object.entries(candidatesByPosition)) {
+        // Define position order
+        const positionOrder = [
+            'President',
+            'Vice President',
+            'Secretary',
+            'Assistant Secretary',
+            'Treasurer',
+            'Auditor',
+            'PIO (Public Information Officer)',
+            'COE Representative',
+            'CBAA Representative',
+            'CTE Representative',
+            'CCS Representative',
+            'CCJE Representative',
+            'CIT Representative',
+            'CAS Representative',
+            'CHMT Representative'
+        ];
+
+        // Sort positions according to the defined order
+        const sortedPositions = Object.keys(candidatesByPosition).sort((a, b) => {
+            const indexA = positionOrder.indexOf(a);
+            const indexB = positionOrder.indexOf(b);
+            
+            // If both positions are in the order list, sort by their index
+            if (indexA !== -1 && indexB !== -1) {
+                return indexA - indexB;
+            }
+            // If only A is in the list, it comes first
+            if (indexA !== -1) return -1;
+            // If only B is in the list, it comes first
+            if (indexB !== -1) return 1;
+            // If neither is in the list, sort alphabetically
+            return a.localeCompare(b);
+        });
+
+        console.log('📋 Sorted positions:', sortedPositions);
+
+        // Render each position in sorted order
+        for (const position of sortedPositions) {
+            const candidates = candidatesByPosition[position];
             console.log(`📝 Rendering position: ${position} with ${candidates.length} candidates`);
+            
+            if (candidates.length === 0) {
+                console.warn(`⚠️ Position "${position}" has no candidates`);
+                continue;
+            }
+            
             const positionContainer = createPositionSection(position, candidates);
             positionsWrapper.appendChild(positionContainer);
         }
@@ -45,7 +95,16 @@ async function loadCandidates() {
         
     } catch (error) {
         console.error('❌ Error loading candidates:', error);
-        positionsWrapper.innerHTML = '<p class="error">Failed to load candidates. Please refresh the page.</p>';
+        positionsWrapper.innerHTML = `
+            <div class="error-message" style="text-align: center; padding: 3rem; background: #f8d7da; border-radius: 8px; margin: 2rem;">
+                <h3 style="color: #721c24;">Failed to Load Candidates</h3>
+                <p style="color: #721c24;">Error: ${error.message}</p>
+                <p style="color: #721c24; font-size: 0.9rem; margin-top: 1rem;">Please check your browser console for more details.</p>
+                <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    Reload Page
+                </button>
+            </div>
+        `;
     }
 }
 

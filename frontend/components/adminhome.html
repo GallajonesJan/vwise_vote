@@ -6,6 +6,199 @@
   <title>Admin Panel | V-Wise</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background-color: var(--base-clr, #fff);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--line-clr, #e0e0e0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+  padding: 2rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 1rem 2rem;
+  border-top: 1px solid var(--line-clr, #e0e0e0);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.detail-section {
+  margin-bottom: 2rem;
+}
+
+.detail-section:last-child {
+  margin-bottom: 0;
+}
+
+.detail-section h3 {
+  color: #667eea;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #667eea;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: var(--text-clr, #333);
+}
+
+.detail-value {
+  color: var(--secondary-text-clr, #666);
+}
+
+.detail-value.platform {
+  white-space: pre-wrap;
+  line-height: 1.6;
+  background: var(--hover-clr, #f5f5f5);
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.status-badge-modal {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-badge-modal.approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge-modal.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.btn-info {
+  background: #17a2b8;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.btn-info:hover {
+  background: #138496;
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .detail-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+}
+</style>
+
 </head>
 <body>
   <!-- Sidebar Navigation -->
@@ -130,6 +323,22 @@
         <!-- Candidates will be loaded here dynamically -->
       </div>
     </section>
+
+    <!-- Candidate Details Modal -->
+    <div id="candidateModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Candidate Details</h2>
+          <button class="modal-close" onclick="closeCandidateModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="candidateDetailsBody">
+          <!-- Details will be loaded here -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeCandidateModal()">Close</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Add Candidates Section -->
     <section id="candidatesSection" class="content-section">
@@ -282,6 +491,7 @@
 
     async function loadCandidatesForApproval() {
       try {
+        console.log('Loading candidates from /get-pending-candidates...');
         const response = await fetch('/get-pending-candidates');
         
         if (!response.ok) {
@@ -289,12 +499,21 @@
         }
         
         allCandidates = await response.json();
+        console.log('Loaded candidates:', allCandidates);
+        
+        if (!allCandidates || allCandidates.length === 0) {
+          console.warn('No candidates found in database');
+        }
+        
         filterCandidates('all');
         
       } catch (error) {
         console.error('Error loading candidates:', error);
         document.getElementById('candidates-list').innerHTML = 
-          `<p class="error">Failed to load candidates: ${error.message}</p>`;
+          `<div class="card"><p class="error" style="color: red; padding: 2rem; text-align: center;">
+            Failed to load candidates: ${error.message}<br>
+            <small>Check browser console and Flask server logs for details</small>
+          </p></div>`;
       }
     }
 
@@ -323,11 +542,17 @@
       container.innerHTML = candidates.map(candidate => `
         <div class="candidate-item ${candidate.approved === 1 ? 'approved' : 'pending'}">
           <div class="candidate-details">
-            <h3>${candidate.full_name}</h3>
+            <h3>${candidate.full_name || candidate.first_name + ' ' + candidate.last_name}</h3>
             <div class="candidate-meta">
-              <span class="badge position-badge">${candidate.position}</span>
-              <span class="badge party-badge">${candidate.party}</span>
+              <span class="badge position-badge">Position: ${candidate.position}</span>
+              <span class="badge party-badge">${candidate.party || candidate.affiliation_type}</span>
+              <span class="badge">${candidate.college} - ${candidate.year_level}</span>
             </div>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+              <strong>Student ID:</strong> ${candidate.student_id}<br>
+              <strong>Email:</strong> ${candidate.email}<br>
+              <strong>Platform:</strong> ${candidate.platform ? candidate.platform.substring(0, 150) + '...' : 'N/A'}
+            </p>
             <p class="applied-date">Applied: ${new Date(candidate.created_at).toLocaleDateString()}</p>
           </div>
           
@@ -339,6 +564,10 @@
           </div>
           
           <div class="candidate-actions">
+            <button class="btn-info" onclick="viewCandidateDetails(${candidate.id})" title="View Full Details">
+              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z"/></svg>
+              View Details
+            </button>
             ${candidate.approved !== 1 
               ? `<button class="btn-approve" onclick="approveCandidate(${candidate.id})">
                   <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>
@@ -423,6 +652,120 @@
         alert('An error occurred while deleting the candidate');
       }
     }
+
+    // View Candidate Details in Modal
+    function viewCandidateDetails(candidateId) {
+      const candidate = allCandidates.find(c => c.id === candidateId);
+      
+      if (!candidate) {
+        alert('Candidate not found');
+        return;
+      }
+
+      const modal = document.getElementById('candidateModal');
+      const modalBody = document.getElementById('candidateDetailsBody');
+      
+      // Format position name
+      const positionNames = {
+        '1': 'President',
+        '2': 'Vice President',
+        '3': 'Secretary',
+        '4': 'Assistant Secretary',
+        '5': 'Treasurer',
+        '6': 'Auditor',
+        '7': 'PIO (Public Information Officer)',
+        '8': 'COE Representative',
+        '9': 'CBAA Representative',
+        '10': 'CTE Representative',
+        '11': 'CCS Representative',
+        '12': 'CCJE Representative',
+        '13': 'CIT Representative',
+        '14': 'CAS Representative',
+        '15': 'CHMT Representative'
+      };
+
+      const positionName = positionNames[candidate.position] || candidate.position;
+      
+      modalBody.innerHTML = `
+        <div class="detail-section">
+          <h3>Personal Information</h3>
+          <div class="detail-row">
+            <div class="detail-label">Full Name:</div>
+            <div class="detail-value">${candidate.full_name || candidate.first_name + ' ' + candidate.last_name}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Student ID:</div>
+            <div class="detail-value">${candidate.student_id}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Email:</div>
+            <div class="detail-value">${candidate.email}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">College:</div>
+            <div class="detail-value">${candidate.college}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Year Level:</div>
+            <div class="detail-value">${candidate.year_level}</div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Candidacy Information</h3>
+          <div class="detail-row">
+            <div class="detail-label">Position:</div>
+            <div class="detail-value">${positionName}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Affiliation:</div>
+            <div class="detail-value">${candidate.party || candidate.affiliation_type}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Application Date:</div>
+            <div class="detail-value">${new Date(candidate.created_at).toLocaleString()}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Status:</div>
+            <div class="detail-value">
+              <span class="status-badge-modal ${candidate.approved === 1 ? 'approved' : 'pending'}">
+                ${candidate.approved === 1 ? '✓ Approved' : 'Pending Approval'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Platform / Advocacy</h3>
+          <div class="detail-value platform">${candidate.platform || 'No platform provided'}</div>
+        </div>
+      `;
+
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    // Close Modal
+    function closeCandidateModal() {
+      const modal = document.getElementById('candidateModal');
+      modal.classList.remove('active');
+      document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('click', function(e) {
+      const modal = document.getElementById('candidateModal');
+      if (e.target === modal) {
+        closeCandidateModal();
+      }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeCandidateModal();
+      }
+    });
 
     // =====================
     // REST OF THE CODE (Schedule, Voters, etc.)
