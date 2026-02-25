@@ -91,20 +91,98 @@
     <main>
         <div class="voting-header">
             <h1>Student Council Elections 2026</h1>
-            <p>Cast your vote for each position below. You can only vote once per position.</p>
+            <p id="election-status-message">Cast your vote for each position below. You can only vote once per position.</p>
         </div>
+
+        <!-- Election Status Banner -->
+        <div id="election-banner" style="display: none;"></div>
 
         <!-- Positions will be rendered here dynamically -->
         <div id="positions-wrapper"></div>
 
         <!-- Submit Vote Button -->
-        <div class="submit-container">
+        <div class="submit-container" id="submit-container" style="display: none;">
             <button class="submit-vote-btn" id="submit-vote-btn">Submit Your Vote</button>
             <p class="vote-disclaimer">
                 By submitting, you confirm that your votes are final and cannot be changed.
             </p>
         </div>
     </main>
+
+    <script>
+        // Get election info passed from backend
+        const electionInfo = JSON.parse('{{ election_info | tojson | safe }}')
+        console.log('Election Info:', electionInfo);
+        
+        // Display election status
+        function displayElectionStatus() {
+            const banner = document.getElementById('election-banner');
+            const statusMessage = document.getElementById('election-status-message');
+            const submitContainer = document.getElementById('submit-container');
+            
+            const status = electionInfo.election_status;
+            const startDate = electionInfo.election_start_date;
+            const endDate = electionInfo.election_end_date;
+            
+            if (status === 'none' || !status) {
+                // No election scheduled
+                banner.style.display = 'block';
+                banner.style.cssText = 'background: #6c757d; color: white; padding: 1.5rem; text-align: center; border-radius: 8px; margin: 1rem 2rem;';
+                banner.innerHTML = '<h3>No Election Scheduled</h3><p>There is currently no election scheduled. Please contact the administrator for more information.</p>';
+                statusMessage.textContent = 'Voting is not available at this time.';
+                submitContainer.style.display = 'none';
+            } else if (status === 'upcoming') {
+                // Election is upcoming
+                banner.style.display = 'block';
+                banner.style.cssText = 'background: #17a2b8; color: white; padding: 1.5rem; text-align: center; border-radius: 8px; margin: 1rem 2rem;';
+                let message = '<h3>Upcoming Election</h3><p>The election has not started yet.';
+                if (startDate) {
+                    const start = new Date(startDate);
+                    message += '<br>Voting starts: ' + start.toLocaleString();
+                }
+                message += '</p>';
+                banner.innerHTML = message;
+                statusMessage.textContent = 'Voting is not available yet. Please wait for the election to start.';
+                submitContainer.style.display = 'none';
+            } else if (status === 'active') {
+                // Check if within voting time
+                const now = new Date();
+                let canVote = true;
+                let message = '<h3>Election is Active!</h3><p>You can now cast your vote.</p>';
+                
+                if (startDate) {
+                    const start = new Date(startDate);
+                    if (now < start) {
+                        canVote = false;
+                        message = '<h3>Voting Not Started</h3><p>Voting starts at ' + start.toLocaleString() + '</p>';
+                    }
+                }
+                
+                if (canVote && endDate) {
+                    const end = new Date(endDate);
+                    if (now > end) {
+                        canVote = false;
+                        message = '<h3>Voting Ended</h3><p>Voting ended at ' + end.toLocaleString() + '</p>';
+                    }
+                }
+                
+                banner.style.display = 'block';
+                banner.style.cssText = canVote ? 'background: #28a745; color: white; padding: 1.5rem; text-align: center; border-radius: 8px; margin: 1rem 2rem;' : 'background: #dc3545; color: white; padding: 1.5rem; text-align: center; border-radius: 8px; margin: 1rem 2rem;';
+                banner.innerHTML = message;
+                submitContainer.style.display = canVote ? 'flex' : 'none';
+            } else if (status === 'closed') {
+                // Election is closed
+                banner.style.display = 'block';
+                banner.style.cssText = 'background: #dc3545; color: white; padding: 1.5rem; text-align: center; border-radius: 8px; margin: 1rem 2rem;';
+                banner.innerHTML = '<h3>Election Closed</h3><p>The election has ended. You can no longer cast your vote.</p>';
+                statusMessage.textContent = 'Voting is no longer available.';
+                submitContainer.style.display = 'none';
+            }
+        }
+        
+        // Run on page load
+        displayElectionStatus();
+    </script>
 
     <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
     <script src="{{ url_for('static', filename='voting.js') }}"></script>

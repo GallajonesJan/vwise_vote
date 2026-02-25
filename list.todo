@@ -3,12 +3,12 @@
 ✔ user voting page @done(26-02-10 16:06)
 ☐ database schema for candidates and partylist
 ☐ backend logic for handling votes and approvals
-☐ profile page
+✔ profile page @done(26-02-13 19:27)
 ☐ landing page
 ☐ notifications for users about voting status
 ☐ security measures to prevent fraudulent voting
 ☐ testing and debugging of the voting system
-☐ view candidates page
+✔ view candidates page @done(26-02-13 19:27)
 ☐ view results page
 ☐ view partylist page
 ☐ vote receipt

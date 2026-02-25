@@ -22,7 +22,14 @@ app = Flask(
     static_url_path='/static'
 )
 app.secret_key = 'supersecretkey'
-CORS(app)
+
+# Session configuration for CORS
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+
+# Configure CORS - allow all since we're using session-based auth
+CORS(app, supports_credentials=True)
 # ----------------------------
 # Database connection
 # ----------------------------
@@ -34,6 +41,80 @@ def get_db_connection():
         database='vwise_vote'
     )
     return conn
+
+# ----------------------------
+# Database initialization - Election Settings Table
+# ----------------------------
+def init_election_settings():
+    """Initialize election_settings table if it doesn't exist"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS election_settings (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                election_start_date DATETIME DEFAULT NULL,
+                election_end_date DATETIME DEFAULT NULL,
+                election_status VARCHAR(20) DEFAULT 'none',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )
+        """)
+        # Insert default row if table is empty
+        cursor.execute("SELECT COUNT(*) FROM election_settings")
+        if cursor.fetchone()[0] == 0:
+            cursor.execute("""
+                INSERT INTO election_settings (election_status)
+                VALUES ('none')
+            """)
+        conn.commit()
+        print("✅ Election settings table initialized")
+    except Exception as e:
+        print(f"Error initializing election settings: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
+# Initialize on startup
+init_election_settings()
+
+# ----------------------------
+# Election Schedule API Endpoints
+# ----------------------------
+
+@app.route('/api/election/status', methods=['GET'])
+def get_election_status():
+    """Get current election status and schedule"""
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        cursor.execute("""
+            SELECT election_start_date, election_end_date, election_status
+            FROM election_settings
+            ORDER BY id DESC
+            LIMIT 1
+        """)
+        result = cursor.fetchone()
+        
+        if result:
+            return jsonify({
+                'election_start_date': result['election_start_date'].isoformat() if result['election_start_date'] else None,
+                'election_end_date': result['election_end_date'].isoformat() if result['election_end_date'] else None,
+                'election_status': result['election_status']
+            })
+        else:
+            return jsonify({
+                'election_start_date': None,
+                'election_end_date': None,
+                'election_status': 'none'
+            })
+    except Exception as e:
+        print(f"Error getting election status: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 # ----------------------------
 # Helper: login required decorator
@@ -95,6 +176,315 @@ def login():
 
     return render_template('login.html')
 
+
+@app.route('/api/check-session', methods=['GET'])
+def check_session():
+    """Debug endpoint to check session status"""
+    return jsonify({
+        'has_session': 'user_id' in session,
+        'user_id': session.get('user_id'),
+        'role': session.get('role'),
+        'session_data': dict(session)
+    })
+
+@app.route('/api/admin/election/settings', methods=['PUT', 'OPTIONS'])
+def update_election_settings():
+    """Update election schedule and status (admin only)"""
+    
+    # Handle preflight request
+    if request.method == 'OPTIONS':
+        response = jsonify({'status': 'ok'})
+        response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin', '*'))
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'PUT, OPTIONS')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response, 200
+    
+    # Check if user is admin
+    print(f"DEBUG: Session data: {dict(session)}")
+    print(f"DEBUG: user_id in session: {'user_id' in session}")
+    print(f"DEBUG: role in session: {session.get('role')}")
+    
+    if 'user_id' not in session or session.get('role') != 'ADMIN':
+        print(f"DEBUG: Authentication failed!")
+        return jsonify({'error': 'Admin authentication required'}), 401
+    
+    data = request.json
+
+    
+    election_start_date = data.get('election_start_date')
+    election_end_date = data.get('election_end_date')
+    election_status = data.get('election_status', 'upcoming')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        # Parse datetime strings to datetime objects if they exist
+        start_date = None
+        end_date = None
+        
+        if election_start_date:
+            from datetime import datetime
+            start_date = datetime.fromisoformat(election_start_date.replace('Z', '+00:00'))
+        if election_end_date:
+            from datetime import datetime
+            end_date = datetime.fromisoformat(election_end_date.replace('Z', '+00:00'))
+        
+        cursor.execute("""
+            UPDATE election_settings
+            SET election_start_date = %s,
+                election_end_date = %s,
+                election_status = %s
+            ORDER BY id DESC
+            LIMIT 1
+        """, (start_date, end_date, election_status))
+        
+        conn.commit()
+        return jsonify({'success': True, 'message': 'Election settings updated successfully!'})
+    except Exception as e:
+        print(f"Error updating election settings: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/api/admin/bulk-register', methods=['POST'])
+def bulk_register_users():
+    """Bulk register users from Excel upload"""
+    if 'user_id' not in session or session.get('role') != 'ADMIN':
+        return jsonify({'error': 'Admin authentication required'}), 401
+    
+    data = request.json
+    users = data.get('users', [])
+    
+    if not users:
+        return jsonify({'error': 'No users provided'}), 400
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    success_count = 0
+    
+    try:
+        for user in users:
+            try:
+                cursor.execute("""
+                    INSERT INTO accounts (studentNumber, password, firstname, middlename, lastname, 
+                                        email, yearlevel, department)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                    password = VALUES(password),
+                    firstname = VALUES(firstname),
+                    middlename = VALUES(middlename),
+                    lastname = VALUES(lastname),
+                    email = VALUES(email),
+                    yearlevel = VALUES(yearlevel),
+                    department = VALUES(department)
+                """, (
+                    user.get('student_id'),
+                    user.get('password'),
+                    user.get('full_name', '').split()[0] if user.get('full_name') else '',
+                    user.get('full_name', '').split()[1] if len(user.get('full_name', '').split()) > 1 else '',
+                    user.get('full_name', '').split()[-1] if len(user.get('full_name', '').split()) > 1 else '',
+                    user.get('email'),
+                    user.get('year_level'),
+                    user.get('department')
+                ))
+                success_count += 1
+            except Exception as e:
+                print(f"Error inserting user {user.get('student_id')}: {e}")
+                continue
+        
+        conn.commit()
+        return jsonify({'success': True, 'success_count': success_count})
+    except Exception as e:
+        print(f"Error bulk registering: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/api/admin/bulk-partylist', methods=['POST'])
+def bulk_add_partylists():
+    """Bulk add partylists from Excel upload"""
+    if 'user_id' not in session or session.get('role') != 'ADMIN':
+        return jsonify({'error': 'Admin authentication required'}), 401
+    
+    data = request.json
+    partylists = data.get('partylists', [])
+    
+    if not partylists:
+        return jsonify({'error': 'No partylists provided'}), 400
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    success_count = 0
+    
+    try:
+        for partylist in partylists:
+            try:
+                cursor.execute("""
+                    INSERT INTO partylists (partylist_name, platform, president_name, 
+                                          president_student_id, contact_email, approved)
+                    VALUES (%s, %s, %s, %s, %s, 1)
+                """, (
+                    partylist.get('name'),
+                    partylist.get('slogan', ''),
+                    partylist.get('president'),
+                    partylist.get('president_id', ''),
+                    partylist.get('contact_email', '')
+                ))
+                success_count += 1
+            except Exception as e:
+                print(f"Error inserting partylist {partylist.get('name')}: {e}")
+                continue
+        
+        conn.commit()
+        return jsonify({'success': True, 'success_count': success_count})
+    except Exception as e:
+        print(f"Error bulk adding partylists: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/api/turnout', methods=['GET'])
+def get_turnout():
+    """Get voter turnout statistics"""
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        # Get total students (all accounts except ADMIN)
+        cursor.execute("SELECT COUNT(*) as total FROM accounts WHERE department != 'ADMIN'")
+        total = cursor.fetchone()['total']
+        
+        # Get students who voted (distinct users who submitted votes, joined with accounts)
+        cursor.execute("""
+            SELECT COUNT(DISTINCT v.user_id) as voted 
+            FROM votes v 
+            INNER JOIN accounts a ON v.user_id = a.id 
+            WHERE a.department != 'ADMIN'
+        """)
+        result = cursor.fetchone()
+        voted = result['voted'] if result['voted'] is not None else 0
+        
+        # Calculate turnout percentage
+        turnout_pct = (voted / total * 100) if total > 0 else 0
+        
+        return jsonify({
+            'total_students': total,
+            'voted_count': voted,
+            'turnout_percentage': round(turnout_pct, 2)
+        })
+    except Exception as e:
+        print(f"Error getting turnout: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/api/admin/results/detailed', methods=['GET'])
+def get_detailed_results():
+    """Get detailed election results"""
+    if 'user_id' not in session or session.get('role') != 'ADMIN':
+        return jsonify({'error': 'Admin authentication required'}), 401
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        cursor.execute("""
+            SELECT 
+                c.id,
+                c.first_name,
+                c.last_name,
+                c.position,
+                c.college,
+                c.year_level,
+                CONCAT(c.first_name, ' ', c.last_name) as full_name,
+                c.position as position_name,
+                COUNT(v.id) as vote_count,
+                CASE 
+                    WHEN (SELECT COUNT(*) FROM votes WHERE position = c.position) > 0 
+                    THEN (COUNT(v.id) / (SELECT COUNT(*) FROM votes WHERE position = c.position) * 100)
+                    ELSE 0 
+                END as vote_percentage
+            FROM candidates c
+            LEFT JOIN votes v ON c.id = v.candidate_id
+            WHERE c.approved = 1
+            GROUP BY c.id, c.first_name, c.last_name, c.position, c.college, c.year_level
+            ORDER BY c.position, vote_count DESC
+        """)
+        
+        results = cursor.fetchall()
+        
+        # Handle None values
+        for result in results:
+            if result['vote_count'] is None:
+                result['vote_count'] = 0
+            if result['vote_percentage'] is None:
+                result['vote_percentage'] = 0.0
+        
+        return jsonify(results)
+    except Exception as e:
+        print(f"Error getting results: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+def can_vote():
+    """Check if voting is currently allowed based on schedule and status"""
+    from datetime import datetime
+    import pytz
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        cursor.execute("""
+            SELECT election_start_date, election_end_date, election_status
+            FROM election_settings
+            ORDER BY id DESC
+            LIMIT 1
+        """)
+        result = cursor.fetchone()
+        
+        if not result:
+            return {'can_vote': False, 'reason': 'Election not configured'}
+        
+        # Check if election status is active
+        if result['election_status'] != 'active':
+            return {'can_vote': False, 'reason': f'Election is {result["election_status"]}'}
+        
+        # Get current time
+        now = datetime.now()
+        
+        # Check if start date is set and if current time is after start
+        if result['election_start_date'] and now < result['election_start_date']:
+            return {
+                'can_vote': False,
+                'reason': 'Voting has not started yet',
+                'start_time': result['election_start_date'].isoformat()
+            }
+        
+        # Check if end date is set and if current time is after end
+        if result['election_end_date'] and now > result['election_end_date']:
+            return {
+                'can_vote': False,
+                'reason': 'Voting has ended',
+                'end_time': result['election_end_date'].isoformat()
+            }
+        
+        return {'can_vote': True}
+    except Exception as e:
+        print(f"Error checking vote eligibility: {e}")
+        return {'can_vote': False, 'reason': str(e)}
+    finally:
+        cursor.close()
+        conn.close()
+
 @app.route('/adminhome')
 @login_required(role='ADMIN')
 def adminhome():
@@ -138,10 +528,37 @@ def add_account():
         cursor.close()
         conn.close()
 
+
 @app.route('/votenow')
 @login_required()
 def votenow():
-    return render_template('votenow.html')
+    # Check election status
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        cursor.execute("""
+            SELECT election_start_date, election_end_date, election_status
+            FROM election_settings
+            ORDER BY id DESC
+            LIMIT 1
+        """)
+        result = cursor.fetchone()
+        
+        election_info = {
+            'election_status': result['election_status'] if result else 'none',
+            'election_start_date': result['election_start_date'].isoformat() if result and result['election_start_date'] else None,
+            'election_end_date': result['election_end_date'].isoformat() if result and result['election_end_date'] else None
+        }
+        
+        return render_template('votenow.html', election_info=election_info)
+    except Exception as e:
+        print(f"Error checking election status: {e}")
+        return render_template('votenow.html', election_info={'election_status': 'none'})
+    finally:
+        cursor.close()
+        conn.close()
+
 
 @app.route('/votenow.html')
 def votenow_html_redirect():
